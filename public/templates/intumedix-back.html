@@ -1,0 +1,2392 @@
+<div class="tg-header">
+    <div class="tg-brand">
+        <div class="ticker-wrapper">
+            <div class="ticker-text">🧠 IntuMedix &nbsp;•&nbsp; 🧠 IntuMedix &nbsp;•&nbsp;</div>
+            <div class="ticker-text">🧠 IntuMedix &nbsp;•&nbsp; 🧠 IntuMedix &nbsp;•&nbsp;</div>
+        </div>
+    </div>
+    <a href="https://t.me/IntuMedix" target="_blank" class="tg-btn">
+        <svg class="tg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" width="20"
+            height="20">
+            <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.18-.08-.05-.19-.02-.27 0-.11.03-1.87 1.18-5.28 3.45-.5.35-.96.52-1.37.51-.45-.01-1.32-.26-1.96-.47-.79-.26-1.42-.4-1.36-.84.03-.23.35-.47.96-.73 3.78-1.63 6.3-2.7 7.55-3.22 3.59-1.5 4.33-1.75 4.81-1.76.11 0 .35.03.48.14.11.09.14.22.14.36-.01.09-.03.22-.04.35z" />
+        </svg>
+        <span>Join Channel</span>
+    </a>
+</div>
+<div class="card-body">
+    <div class="meta-row">
+        <span class="qmeta d1" id="qmetaBadge">
+            <span id="qmetaInner">...</span>
+        </span>
+        <button id="errorCountBtn" class="error-count-btn" onclick="openErrorPopup()" title="عدد مرات الخطأ">
+            ⚠️ <span id="errorCountDisplay">0</span>
+        </button>
+        <button id="personalNotesBtn" class="personal-notes-btn" onclick="openNotesPopup()">
+            📝 My Notes
+        </button>
+        <button id="sourceAlertBtn" class="source-alert-btn" onclick="openSourceAlertPopup()" style="display:none;">
+            ⚠️ Source Notes
+        </button>
+        <button id="reconstructBtn" class="reconstruction-btn" onclick="toggleReconstruction(event)"
+            style="display:none;">
+            🔧 Reconstruction
+        </button>
+        <button id="conflictBtn" class="conflict-badge" onclick="openConflictPopup()" style="display:none;">🔀
+            Conflicted</button>
+        <div id="rawConflict" style="display:none;">{{Answer_Conflict}}</div>
+        <div id="rawReconstruction" style="display:none;">{{Suggested Reconstruction}}</div>
+        <div id="rawMyNotes" style="display:none;">{{My Notes}}</div>
+        <div id="rawDeckName" style="display:none;">{{Deck}}</div>
+        <div id="rawImagesContent" style="display:none;">{{Images}}</div>
+        <div id="rawSourceNotes" style="display:none;">{{Source notes}}</div>
+        {{#Images}}
+        <button id="showImages" class="images-btn" onclick="toggleImagesBox()">🖼️ Images</button>
+        {{/Images}}
+        <div class="im-logo-wrapper"><img class="im-channel-logo" src="_IntuMedix_logo.png" title="IntuMedix"></div>
+    </div>
+    {{#Key Words}}
+    <div class="keywords-badges" id="kwContainer" style="margin-bottom: 14px;"></div>
+    {{/Key Words}}
+    <!-- Suggested Reconstruction Dropdown Box -->
+    <div id="reconstructionBox" class="reconstruction-box" style="display:none;">
+        <div class="reconstruction-box-header">
+            <span class="reconstruction-box-header-label">🔧 Suggested Reconstruction</span>
+            <span class="reconstruction-box-header-badge">AI ✦ Rebuilt</span>
+            <span class="reconstruction-box-divider"></span>
+        </div>
+        <div class="reconstruction-box-content">{{Suggested Reconstruction}}</div>
+    </div>
+    {{#Images}}
+    <div class="images-box" id="imagesBox" style="display:none;">
+        <div class="images-box-header">
+            <strong>🖼️ Images</strong>
+            <button class="images-box-close" onclick="toggleImagesBox()">✕</button>
+        </div>
+        <div class="images-box-content">{{Images}}</div>
+    </div>
+    {{/Images}}
+    <div class="question" id="questionBox">{{Question_Stem}}</div>
+
+    <div id="rawTags" style="display:none;">{{Tag}}</div>
+    <div id="rawKeywords" style="display:none;">{{Key Words}}</div>
+    <div id="rawOptionsDD" style="display:none;">{{Options DD}}</div>
+    <div class="choices">
+        <div class="choice-row">
+            <button class="opt-info-btn" data-opt="A" title="شرح الخيار A" onclick="toggleOptionExplain('A')">ⓘ</button>
+            <label id="A">A) {{answer_A}}<img class="choice-logo-mark" src="_IntuMedix_watermark.png"></label>
+        </div>
+        <div class="opt-inline-explain" id="opt-explain-A"></div>
+        <div class="choice-row">
+            <button class="opt-info-btn" data-opt="B" title="شرح الخيار B" onclick="toggleOptionExplain('B')">ⓘ</button>
+            <label id="B">B) {{answer_B}}<img class="choice-logo-mark" src="_IntuMedix_watermark.png"></label>
+        </div>
+        <div class="opt-inline-explain" id="opt-explain-B"></div>
+        <div class="choice-row">
+            <button class="opt-info-btn" data-opt="C" title="شرح الخيار C" onclick="toggleOptionExplain('C')">ⓘ</button>
+            <label id="C">C) {{answer_C}}<img class="choice-logo-mark" src="_IntuMedix_watermark.png"></label>
+        </div>
+        <div class="opt-inline-explain" id="opt-explain-C"></div>
+        <div class="choice-row">
+            <button class="opt-info-btn" data-opt="D" title="شرح الخيار D" onclick="toggleOptionExplain('D')">ⓘ</button>
+            <label id="D">D) {{answer_D}}<img class="choice-logo-mark" src="_IntuMedix_watermark.png"></label>
+        </div>
+        <div class="opt-inline-explain" id="opt-explain-D"></div>
+        {{#answer_E}}
+        <div class="choice-row">
+            <button class="opt-info-btn" data-opt="E" title="شرح الخيار E" onclick="toggleOptionExplain('E')">ⓘ</button>
+            <label id="E">E) {{answer_E}}<img class="choice-logo-mark" src="_IntuMedix_watermark.png"></label>
+        </div>
+        <div class="opt-inline-explain" id="opt-explain-E"></div>
+        {{/answer_E}}
+    </div>
+    <div id="result"></div>
+    <div class="correct-box" id="correct-box" style="display:none;">
+        <div class="correct-letter">{{correct_answer}}</div>
+        <div class="correct-text">{{correct_answer_text}}</div>
+    </div>
+    {{#answer_explanation}}
+    <div class="explanation">
+        <strong>Explanation:</strong> {{answer_explanation}}
+    </div>
+    {{/answer_explanation}}
+    <div class="notes-btn-container">
+        <button id="toggleAllNotesBtn" class="notes-btn toggle-all-btn"
+            style="display:none; background: linear-gradient(135deg, #1e5080, #2e80df); color: white; width: 100%; margin-bottom: 10px; font-weight: bold; font-size: 1.1em; border:none; box-shadow: 0 4px 12px rgba(30, 80, 128, 0.2);">📂
+            إظهار جميع الملاحظات</button>
+        {{#IntuMedix Notes}}
+        <button id="showIMNotes" class="notes-btn">📘 IntuMedix Notes</button>
+        {{/IntuMedix Notes}}
+        {{#USMLE Notes}}
+        <button id="showUSMLENotes" class="notes-btn usmle-btn">📗 USMLE Notes</button>
+        {{/USMLE Notes}}
+        {{#SMLE Notes}}
+        <button id="showSMLENotes" class="notes-btn smle-btn">📙 SMLE Notes</button>
+        {{/SMLE Notes}}
+        {{#EXAM Traps}}
+        <button id="showTraps" class="notes-btn trap-btn">⚠️ Exam Traps</button>
+        {{/EXAM Traps}}
+        {{#Likelihood DD}}
+        <button id="showLikelihood" class="notes-btn likelihood-btn">🧠 Likelihood DD</button>
+        {{/Likelihood DD}}
+        {{#Options DD}}
+        <button id="showOptions" class="notes-btn options-btn">🔍 Options DD</button>
+        {{/Options DD}}
+        {{#Source notes}}
+        <button id="showSourceNotes" class="notes-btn source-notes-btn">📘 Source notes</button>
+        {{/Source notes}}
+    </div>
+    <!-- ── Personal Notes auto-display (shown if note exists) ── -->
+    <div id="personalNotesDisplayBox" class="personal-notes-display" style="display:none;">
+        <div class="personal-notes-display-header">
+            <span class="personal-notes-display-title">📝 ملاحظاتي</span>
+            <div style="display: flex; gap: 6px;">
+                <button class="personal-notes-display-edit" onclick="openExportPopup()"
+                    style="font-size: 11px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0284c7; cursor: pointer; padding: 2px 8px; border-radius: 5px; border: 1px solid #bae6fd; background: #fff; transition: all .2s; display: inline-flex; align-items: center; gap: 2px;">🖼️
+                    تصدير</button>
+                <button class="personal-notes-display-edit" onclick="openNotesPopup()">✒️ تعديل</button>
+            </div>
+        </div>
+        <div class="personal-notes-display-text" id="personalNotesDisplayText"></div>
+    </div>
+    {{#IntuMedix Notes}}
+    <div class="im-notes" id="imNotes" style="display:none;">
+        <div class="notes-box-header"><strong>IntuMedix Notes:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('imNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('imNotes', 'IntuMedix Notes')">➕ Send to My
+                    Notes</button></div>
+        </div>{{IntuMedix Notes}}
+    </div>
+    {{/IntuMedix Notes}}
+    {{#USMLE Notes}}
+    <div class="usmle-notes" id="usmleNotes" style="display:none;">
+        <div class="notes-box-header"><strong>USMLE Notes:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('usmleNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('usmleNotes', 'USMLE Notes')">➕ Send to My
+                    Notes</button></div>
+        </div>{{USMLE Notes}}
+    </div>
+    {{/USMLE Notes}}
+    {{#SMLE Notes}}
+    <div class="smle-notes" id="smleNotes" style="display:none;">
+        <div class="notes-box-header"><strong>SMLE Notes:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('smleNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('smleNotes', 'SMLE Notes')">➕ Send to My
+                    Notes</button></div>
+        </div>{{SMLE Notes}}
+    </div>
+    {{/SMLE Notes}}
+    {{#EXAM Traps}}
+    <div class="trap-notes" id="trapNotes" style="display:none;">
+        <div class="notes-box-header"><strong>Exam Traps:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('trapNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('trapNotes', 'Exam Traps')">➕ Send to My
+                    Notes</button></div>
+        </div>{{EXAM Traps}}
+    </div>
+    {{/EXAM Traps}}
+    {{#Likelihood DD}}
+    <div class="likelihood-notes" id="likelihoodNotes" style="display:none;">
+        <div class="notes-box-header"><strong>Likelihood DD:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('likelihoodNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('likelihoodNotes', 'Likelihood DD')">➕ Send to
+                    My Notes</button></div>
+        </div>{{Likelihood DD}}
+    </div>
+    {{/Likelihood DD}}
+    {{#Options DD}}
+    <div class="options-notes" id="optionsNotes" style="display:none;">
+        <div class="notes-box-header"><strong>Options DD:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('optionsNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('optionsNotes', 'Options DD')">➕ Send to My
+                    Notes</button></div>
+        </div>{{Options DD}}
+    </div>
+    {{/Options DD}}
+    {{#Source notes}}
+    <div class="source-notes" id="sourceNotes" style="display:none;">
+        <div class="notes-box-header"><strong>📘 Source notes:</strong>
+            <div class="notes-box-actions"><button class="nb-copy-btn" title="نسخ النص"
+                    onclick="copyBoxText('sourceNotes')">📋 Copy</button><button class="nb-send-btn"
+                    title="إرسال إلى ملاحظاتي" onclick="sendBoxToMyNotes('sourceNotes', 'Source notes')">➕ Send to My
+                    Notes</button></div>
+        </div>{{Source notes}}
+    </div>
+    {{/Source notes}}
+    {{#Images}}
+    <div class="images-notes" id="imagesNotes"
+        style="display:none; margin-top: 14px; text-align: center; border-radius: 12px; overflow: hidden;">
+        {{Images}}
+    </div>
+    {{/Images}}
+    <div id="pageTagsContainer" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-top:20px;">
+    </div>
+</div>
+<!-- ── Error Counter Popup ── -->
+<div id="errorPopup" class="im-modal-overlay" style="display:none;" onclick="if(event.target===this)closeErrorPopup()">
+    <div class="im-modal-box">
+        <button class="im-modal-close" onclick="closeErrorPopup()">×</button>
+        <div class="im-modal-title error-modal-title">⚠️ عداد الأخطاء</div>
+        <div class="error-current-display">
+            <span class="error-big-number" id="errorBigNum">0</span>
+            <span class="error-big-label">مرة خطأ في هذا السؤال</span>
+        </div>
+        <div class="error-actions-row">
+            <button class="error-plus-btn" onclick="addOneError()">＋١ خطأ</button>
+        </div>
+        <div class="error-manual-row">
+            <input class="error-manual-input tappable" id="errorManualInput" type="number" min="0"
+                placeholder="أدخل الرقم يدوياً...">
+            <button class="error-set-btn" onclick="setManualError()">تعيين</button>
+        </div>
+        <button class="error-reset-btn" onclick="resetErrors()">🔄 إعادة ضبط إلى صفر</button>
+    </div>
+</div>
+<!-- ── Personal Notes Popup ── -->
+<div id="notesPopup" class="im-modal-overlay" style="display:none;" onclick="if(event.target===this)closeNotesPopup()">
+    <div class="im-modal-box">
+        <button class="im-modal-close" onclick="closeNotesPopup()">×</button>
+        <div class="im-modal-title notes-modal-title">📝 ملاحظاتي الشخصية</div>
+        <div class="notes-toolbar">
+            <button type="button" class="toolbar-btn" onclick="formatNotes('bold')" title="خط عريض (Bold)"><b>B</b></button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('underline')" title="تحته خط (Underline)"><u>U</u></button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('hiliteColor', '#fde047')" title="تظليل (Highlight)" style="background: #fef08a; color: #854d0e;">🖍️</button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('insertUnorderedList')" title="قائمة نقطية (List)">•=</button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('justifyLeft')" title="محاذاة لليسار (Left)">⬅️</button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('justifyCenter')" title="توسط (Center)">↕️</button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('justifyRight')" title="محاذاة لليمين (Right)">➡️</button>
+            <button type="button" class="toolbar-btn" onclick="formatNotes('removeFormat')" title="مسح التنسيق (Clear)">🧹</button>
+        </div>
+        <div class="notes-textarea" id="notesTextarea" contenteditable="true" placeholder="اكتب ملاحظاتك عن هذا السؤال..."></div>
+        <button class="notes-save-btn" onclick="saveNotes()">💾 حفظ الملاحظة</button>
+        <div class="notes-save-feedback" id="notesSaveFeedback"></div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="notes-save-btn" onclick="openExportPopup()"
+                style="flex: 1; margin: 0; background: linear-gradient(135deg, #0ea5e9, #0284c7); box-shadow: 0 4px 14px rgba(2,132,199,0.25);">🖼️
+                تصدير كصورة</button>
+            <button class="notes-clear-btn" onclick="clearNotes()" style="flex: 1; margin: 0;">🗑️ حذف الملاحظة</button>
+        </div>
+    </div>
+</div>
+<!-- ── Export Notes Popup ── -->
+<div id="exportNotesPopup" class="im-modal-overlay" style="display:none;"
+    onclick="if(event.target===this)closeExportPopup()">
+    <div class="im-modal-box export-modal-box">
+        <button class="im-modal-close" onclick="closeExportPopup()">×</button>
+        <div class="im-modal-title notes-modal-title" style="color: #0284c7;">🖼️ تصدير الملاحظات كصورة</div>
+
+        <label class="export-option-row">
+            <input type="checkbox" id="exportIncludeQuestion" checked onchange="updateExportPreview()">
+            <span>إرفاق نص السؤال والخيارات بخط صغير في أعلى الصورة</span>
+        </label>
+
+        <div class="export-control-group">
+            <span class="export-control-label">لون خلفية الصورة:</span>
+            <div class="export-theme-options">
+                <button type="button" class="theme-opt-btn" data-theme="default" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);" title="افتراضي" onclick="changeExportTheme('default')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="cream" style="background: linear-gradient(135deg, #fdfbf7, #f5ebd6);" title="كريمي" onclick="changeExportTheme('cream')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="mint" style="background: linear-gradient(135deg, #f4fbf7, #e2f4ea);" title="نعناعي" onclick="changeExportTheme('mint')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="lilac" style="background: linear-gradient(135deg, #faf9fe, #eddffd);" title="ليلكي" onclick="changeExportTheme('lilac')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="peach" style="background: linear-gradient(135deg, #fff7ed, #ffedd5);" title="خوخي" onclick="changeExportTheme('peach')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="rose" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);" title="وردي" onclick="changeExportTheme('rose')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="teal" style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1);" title="محيطي" onclick="changeExportTheme('teal')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="white" style="background: #ffffff; border: 1px solid #e2e8f0;" title="أبيض" onclick="changeExportTheme('white')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="dark" style="background: linear-gradient(135deg, #1e293b, #0f172a);" title="داكن" onclick="changeExportTheme('dark')"></button>
+                <button type="button" class="theme-opt-btn" data-theme="midnight" style="background: linear-gradient(135deg, #0b0f19, #05070c); border: 1px solid #1e293b;" title="منتصف الليل" onclick="changeExportTheme('midnight')"></button>
+            </div>
+        </div>
+
+        <div class="export-control-group">
+            <span class="export-control-label">مقاس الصورة:</span>
+            <select id="exportSizeSelect" class="export-size-select" onchange="updateExportPreview()">
+                <option value="auto" selected>تلقائي (حسب طول النص)</option>
+                <option value="a4">صفحة A4 (طولية)</option>
+                <option value="square">مربع (1:1)</option>
+            </select>
+        </div>
+
+        <div class="export-preview-container">
+            <canvas id="exportCanvas" style="display: none;"></canvas>
+            <img id="exportImagePreview" class="export-preview-canvas"
+                style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"
+                alt="معاينة الصورة">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 10px; direction: rtl; flex-wrap: wrap;">
+            <button class="export-download-btn" onclick="downloadExportedImage()" style="flex: 1.5; margin: 0;">💾 تحميل الصورة</button>
+            <button class="export-share-text-btn" onclick="shareNotesAsText()" style="flex: 1; margin: 0;">📢 مشاركة</button>
+            <button class="notes-clear-btn" onclick="goBackToEditor()" style="flex: 1; margin: 0; background: #64748b; color: #ffffff;">⬅️ رجوع للتعديل</button>
+        </div>
+    </div>
+</div>
+<!-- ── Conflict Popup ── -->
+<div id="conflictPopup" class="im-modal-overlay" style="display:none;"
+    onclick="if(event.target===this)closeConflictPopup()">
+    <div class="im-modal-box">
+        <button class="im-modal-close" onclick="closeConflictPopup()">×</button>
+        <div class="conflict-popup-header">🔀 Answer Conflict</div>
+        <div id="conflictAutoBanner" class="conflict-auto-banner" style="display:none;">
+            🔍 كلمة مكتشفة تلقائياً: <span class="conflict-auto-keyword" id="conflictKeywordSpan"></span>
+        </div>
+        <div id="conflictFieldBox" style="display:none;">
+            <div class="conflict-popup-field-content" id="conflictFieldText"></div>
+        </div>
+        <div class="conflict-popup-alert">⚠️ تختلف إجابة هذا السؤال بين المصادر — يُرجى مراجعة المصادر للتأكد.</div>
+    </div>
+</div>
+<!-- ── Source Notes Alert Popup ── -->
+<div id="sourceAlertPopup" class="im-modal-overlay" style="display:none;"
+    onclick="if(event.target===this)closeSourceAlertPopup()">
+    <div class="im-modal-box" style="border-left: 6px solid #ef4444;">
+        <button class="im-modal-close" onclick="closeSourceAlertPopup()">×</button>
+        <div class="im-modal-title" style="color: #dc2626;">⚠️ Source Notes Alert</div>
+        <div class="source-alert-popup-content" id="sourceAlertFieldText"></div>
+        <div class="source-alert-popup-bottom">يرجى الرجوع لزر الـ Source notes الذي في شريط الملاحظات لرؤيتها بشكل أفضل
+        </div>
+    </div>
+</div>
+<style>
+    /* ── Notes Box Header (copy/send buttons) ── */
+    .notes-box-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .notes-box-actions {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .nb-copy-btn,
+    .nb-send-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        line-height: 1;
+        background: transparent;
+        white-space: nowrap;
+    }
+
+    .nb-copy-btn {
+        border: 1.5px solid #0284c7;
+        color: #0284c7;
+    }
+
+    .nb-send-btn {
+        border: 1.5px solid #16a34a;
+        color: #16a34a;
+    }
+
+    .nb-copy-btn:hover {
+        background: rgba(2, 132, 199, 0.1);
+        transform: scale(1.07);
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
+    }
+
+    .nb-send-btn:hover {
+        background: rgba(22, 163, 74, 0.1);
+        transform: scale(1.07);
+        box-shadow: 0 3px 10px rgba(22, 163, 74, 0.25);
+    }
+
+    .nb-copy-btn:active,
+    .nb-send-btn:active {
+        transform: scale(0.92);
+        opacity: 0.8;
+    }
+
+    /* ── Likelihood DD Lines ── */
+    .likelihood-line {
+        display: block;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+        line-height: 1.75;
+    }
+
+    .likelihood-line:last-child {
+        border-bottom: none;
+    }
+
+    /* ── Choice Row Layout ── */
+    .choice-row {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .choice-row label {
+        flex: 1;
+        margin: 0;
+    }
+
+    /* ── Option Info Button ── */
+    .opt-info-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #38bdf8;
+        background: linear-gradient(135deg, #0369a1, #0ea5e9);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-right: 9px;
+        flex-shrink: 0;
+        transition: background 0.3s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+        line-height: 1;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.45);
+    }
+
+    .opt-info-btn:hover {
+        background: linear-gradient(135deg, #0284c7, #38bdf8);
+        border-color: #7dd3fc;
+        transform: scale(1.2) rotate(10deg);
+        box-shadow: 0 5px 15px rgba(14, 165, 233, 0.65);
+    }
+
+    .opt-info-btn:active {
+        transform: scale(0.9);
+        transition-duration: 0.1s;
+    }
+
+    .opt-info-btn.no-data {
+        background: rgba(60, 60, 60, 0.3);
+        border-color: #374151;
+        color: #4b5563;
+        cursor: default;
+        box-shadow: none;
+        transform: none !important;
+    }
+
+    .opt-info-btn.is-open {
+        background: linear-gradient(135deg, #065f46, #059669);
+        border-color: #34d399;
+        box-shadow: 0 3px 12px rgba(16, 185, 129, 0.55);
+        transform: scale(1.08) rotate(0deg);
+    }
+
+    .opt-inline-explain {
+        max-height: 0;
+        overflow: hidden;
+        margin: 0 0 0 33px;
+        border-radius: 12px;
+        border-left: 4px solid transparent;
+        background: rgba(15, 23, 42, 0.95);
+        opacity: 0;
+        transform: translateY(-6px) scaleY(0.96);
+        transform-origin: top center;
+        box-shadow: none;
+        transition:
+            max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+            margin-top 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+            margin-bottom 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.40s cubic-bezier(0.22, 1, 0.36, 1),
+            border-color 0.30s ease,
+            box-shadow 0.40s ease;
+    }
+
+    .opt-inline-explain.visible {
+        max-height: 400px;
+        margin-top: 6px;
+        margin-bottom: 12px;
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.20),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .opt-explain-inner {
+        padding: 10px 14px 11px;
+    }
+
+    .opt-explain-verdict-inline {
+        font-size: 0.78em;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .opt-explain-verdict-inline.correct {
+        color: #22c55e;
+        text-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    .opt-explain-verdict-inline.wrong {
+        color: #ef4444;
+        text-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+    }
+
+    .opt-explain-text {
+        font-size: 0.9em;
+        line-height: 1.75;
+        color: rgba(255, 255, 255, 0.88);
+        white-space: pre-wrap;
+    }
+
+    .opt-explain-text.text-correct {
+        color: #22c55e;
+        font-weight: 800;
+    }
+
+    .opt-explain-text.text-wrong {
+        color: #ef4444;
+        font-weight: 800;
+    }
+</style>
+<script>
+    (function () {
+        /* ── Helper Functions for Option DD Parsing & Formatting ── */
+        function htmlToPlainText(el) {
+            if (!el) return '';
+            const clone = el.cloneNode(true);
+            clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+            clone.querySelectorAll('p, div, li').forEach(block => {
+                block.insertAdjacentText('afterend', '\n');
+            });
+            return clone.textContent || clone.innerText || '';
+        }
+        function parseOptionsBetter(text) {
+            let map = {};
+            /* Strategy 1: split on newline before letter+delimiter */
+            const parts = text.split(/\n\s*(?=[A-E]\s*[:\)\.])/);
+            parts.forEach(part => {
+                const hm = part.match(/^\s*([A-E])\s*[:\)\.]\s*/i);
+                if (hm) {
+                    const letter = hm[1].toUpperCase();
+                    const content = part.substring(hm[0].length).trim();
+                    if (content) map[letter] = content;
+                }
+            });
+
+            /* Strategy 2 fallback: inline "A: ... B: ..." on one line */
+            if (Object.keys(map).length <= 1) {
+                const inlineMap = {};
+                const re = /\b([A-E])\s*[:\)\.]\s*(.*?)(?=\s+[A-E]\s*[:\)\.]|$)/gi;
+                let m;
+                while ((m = re.exec(text)) !== null) {
+                    const letter = m[1].toUpperCase();
+                    const content = m[2].trim();
+                    if (content) inlineMap[letter] = content;
+                }
+                if (Object.keys(inlineMap).length > Object.keys(map).length) {
+                    map = inlineMap;
+                }
+            }
+            return map;
+        }
+        /* ── Extract qmeta from Question_Stem ── */
+        const qBox = document.getElementById('questionBox');
+        const qmetaSpan = qBox ? qBox.querySelector('.qmeta') : null;
+        let diffClass = 'd1';
+        let primaryBadge = "Q";
+        let sourceNumbers = [];
+        if (qmetaSpan) {
+            if (qmetaSpan.classList.contains('d1')) diffClass = 'd1';
+            else if (qmetaSpan.classList.contains('d2')) diffClass = 'd2';
+            else if (qmetaSpan.classList.contains('d3')) diffClass = 'd3';
+            // Unwrap qmetaSpan so its contents become normal text nodes we can process
+            const fragment = document.createDocumentFragment();
+            while (qmetaSpan.firstChild) {
+                fragment.appendChild(qmetaSpan.firstChild);
+            }
+            qmetaSpan.parentNode.replaceChild(fragment, qmetaSpan);
+        }
+        if (qBox) {
+            qBox.innerHTML = qBox.innerHTML.replace(/\\/g, '');
+            let fullText = qBox.textContent;
+            let strippedLength = 0;
+            let keepStripping = true;
+            let textToParse = fullText;
+            while (keepStripping) {
+                let len = textToParse.length;
+                let match;
+                // Strip leading junk
+                match = textToParse.match(/^(?:[,\-\s:\.]|\[\s*UNCERTAIN\s*\]|[\u200B\uFEFF\u200D\u200C])+/i);
+                if (match) {
+                    strippedLength += match[0].length;
+                    textToParse = textToParse.substring(match[0].length);
+                    continue;
+                }
+                // Match Px, Qy or P[x], Q[y] — separator can be comma, space, or pipe (|)
+                match = textToParse.match(/^P\s*\[?\s*\d+\s*\]?(?:[,\s]|\s*\|\s*)*Q\s*\[?\s*\d+\s*\]?/i);
+                if (match) {
+                    primaryBadge = match[0].trim();
+                    strippedLength += match[0].length;
+                    textToParse = textToParse.substring(match[0].length);
+
+                    let srcMatch = textToParse.match(/^[,\-\s:]+\[?\s*(\d+)\s*\]?\s*[-\.)]?/i);
+                    if (srcMatch) {
+                        sourceNumbers.push(srcMatch[1]);
+                        strippedLength += srcMatch[0].length;
+                        textToParse = textToParse.substring(srcMatch[0].length);
+                    }
+                    continue;
+                }
+                // Match [SrcN]1, [Src] 1, SrcN-1, Src 1
+                match = textToParse.match(/^\[?\s*SrcN?\s*\]?[,\-\s:]*(\d+)/i);
+                if (match) {
+                    if (match[1]) sourceNumbers.push(match[1]);
+                    strippedLength += match[0].length;
+                    textToParse = textToParse.substring(match[0].length);
+                    continue;
+                }
+                // Match [1] or (1) or {1}
+                match = textToParse.match(/^[\(\[\{]\s*(\d+)\s*[\)\]\}][\-\.]?\s*/i);
+                if (match) {
+                    if (match[1]) sourceNumbers.push(match[1]);
+                    strippedLength += match[0].length;
+                    textToParse = textToParse.substring(match[0].length);
+                    continue;
+                }
+                // Match Q1, Q 1, Q.1, Question 1, السؤال 1, Q[1]
+                match = textToParse.match(/^(?:Question|Q|السؤال)\.?\s*\[?\s*(\d+)\s*\]?\s*[-\.):]?\s*/i);
+                if (match) {
+                    if (primaryBadge === "Q") primaryBadge = "Q" + match[1];
+                    strippedLength += match[0].length;
+                    textToParse = textToParse.substring(match[0].length);
+                    continue;
+                }
+                // Match 1- or 1. or 1) or 1 :
+                match = textToParse.match(/^(\d+)\s*[-\.):]\s+/i);
+                if (match) {
+                    if (match[1]) sourceNumbers.push(match[1]);
+                    strippedLength += match[0].length;
+                    textToParse = textToParse.substring(match[0].length);
+                    continue;
+                }
+                if (textToParse.length === len) keepStripping = false;
+            }
+            // Combine into final badge text
+            let finalBadgeText = primaryBadge;
+            if (sourceNumbers.length > 0) {
+                sourceNumbers = [...new Set(sourceNumbers)]; // unique
+                finalBadgeText += " | Src: " + sourceNumbers.join(', ');
+            }
+            const badgeInner = document.getElementById('qmetaInner');
+            if (badgeInner) {
+                badgeInner.textContent = finalBadgeText;
+            }
+            // Strip exactly `strippedLength` characters from text nodes
+            let charsToRemove = strippedLength;
+            function stripCharsFromDOM(node) {
+                if (charsToRemove <= 0) return false;
+
+                if (node.nodeType === Node.TEXT_NODE) {
+                    let textLen = node.nodeValue.length;
+                    if (charsToRemove >= textLen) {
+                        charsToRemove -= textLen;
+                        node.nodeValue = "";
+                        return true;
+                    } else {
+                        node.nodeValue = node.nodeValue.substring(charsToRemove);
+                        charsToRemove = 0;
+                        return false;
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    let children = Array.from(node.childNodes);
+                    for (let i = 0; i < children.length; i++) {
+                        let keepGoing = stripCharsFromDOM(children[i]);
+                        if (!keepGoing) return false;
+                    }
+                    return true;
+                }
+                return true;
+            }
+            stripCharsFromDOM(qBox);
+            // Clean up leftover leading empty tags or <br>s
+            function removeLeadingEmptyNodes(node) {
+                let children = Array.from(node.childNodes);
+                for (let i = 0; i < children.length; i++) {
+                    let child = children[i];
+                    if (child.nodeType === Node.TEXT_NODE) {
+                        if (child.nodeValue.trim() === "") {
+                            child.remove();
+                        } else {
+                            return false; // stop cleaning
+                        }
+                    } else if (child.nodeType === Node.ELEMENT_NODE) {
+                        if (child.tagName === 'BR') {
+                            child.remove();
+                        } else {
+                            let keepCleaning = removeLeadingEmptyNodes(child);
+                            if (child.childNodes.length === 0) {
+                                child.remove();
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            removeLeadingEmptyNodes(qBox);
+        }
+        const badge = document.getElementById('qmetaBadge');
+        if (badge) {
+            badge.classList.remove('d1', 'd2', 'd3');
+            badge.classList.add(diffClass);
+        }
+        const pText = document.getElementById('qmetaInner') ? document.getElementById('qmetaInner').textContent : '';
+        let prefix = pText.replace(/[^a-zA-Z0-9]/g, '');
+        if (!prefix || prefix === 'Q') {
+            const rawQ = document.getElementById('questionBox') ? document.getElementById('questionBox').textContent : '';
+            let hash = 0;
+            for (let i = 0; i < rawQ.length; i++) {
+                hash = ((hash << 5) - hash) + rawQ.charCodeAt(i);
+                hash |= 0;
+            }
+            prefix = 'H' + Math.abs(hash).toString(36);
+        }
+        /* ── Apply skin from difficulty badge class ── */
+        function applySkinFromBadge() {
+            const b = document.querySelector('.qmeta');
+            const card = document.querySelector('.card-body');
+            if (!b || !card) return;
+            ['skin-d1', 'skin-d2', 'skin-d3'].forEach(c => card.classList.remove(c));
+            if (b.classList.contains('d1')) card.classList.add('skin-d1');
+            else if (b.classList.contains('d2')) card.classList.add('skin-d2');
+            else if (b.classList.contains('d3')) card.classList.add('skin-d3');
+        }
+        /* ── Apply manual override if exists ── */
+        try {
+            const saved = localStorage.getItem('anki_diff_' + prefix);
+            if (saved && badge) {
+                badge.classList.remove('d1', 'd2', 'd3');
+                badge.classList.add(saved);
+            }
+        } catch (e) { }
+        applySkinFromBadge();
+        /* ── MCQ reveal logic ── */
+        const eLabel = document.getElementById("E");
+        if (eLabel) {
+            const t = eLabel.textContent.replace(/E\)\s*/, '').trim();
+            if (!t || t.toUpperCase() === "N/A") eLabel.style.display = "none";
+        }
+        const correct = "{{correct_answer}}".trim().toUpperCase();
+        const correctBox = document.getElementById('correct-box');
+        let chosen = null;
+        try { chosen = localStorage.getItem('anki_mcq_choice'); } catch (e) { }
+        try { localStorage.removeItem('anki_mcq_choice'); } catch (e) { }
+        const correctMsgs = [
+            "🎉 رائع جداً! إجابة دقيقة في محلها.",
+            "✨ ممتاز! أداء مبهر وإجابة صحيحة.",
+            "🌟 بطل! لقد أصبت الهدف ببراعة.",
+            "🔥 عمل رائع! استمر في هذا التألق.",
+            "👏 إجابة صحيحة! خطوة ممتازة نحو الإتقان."
+        ];
+        const wrongMsgs = [
+            "💪 لا تيأس! الأخطاء هي جسر التعلم. الإجابة بالأسفل 👇",
+            "🌱 محاولة جيدة! راجع التفسير لترسيخ المعلومة.",
+            "💡 خطوة نحو الإتقان! تعلّم من الخطأ وانطلق أقوى 👇",
+            "⚡ لا بأس! كل خطأ يقربك خطوة للنجاح. انظر للأسفل 👇",
+            "🛤️ الطريق للنجاح مليء بالمحاولات. استمر بثقة! 👇"
+        ];
+        function createCelebration() {
+            const emojis = ['🎈', '🌹', '🎉', '🌸', '🌺', '🎊', '✨', '🏆'];
+            for (let i = 0; i < 35; i++) {
+                const el = document.createElement('div');
+                el.className = 'celebration-item';
+                el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+                // Pick a side: either left side (0% to 15%) or right side (85% to 100%)
+                const isLeft = Math.random() > 0.5;
+                const pos = isLeft ? (Math.random() * 15) : (85 + Math.random() * 15);
+                el.style.left = pos + 'vw';
+
+                el.style.fontSize = (Math.random() * 15 + 20) + 'px';
+                el.style.animationDuration = (Math.random() * 2.5 + 2.5) + 's'; // Slightly slower for elegance
+                el.style.animationDelay = (Math.random() * 0.8) + 's';
+                el.style.opacity = '0.85'; // Subtle transparency
+
+                document.body.appendChild(el);
+                setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 6000);
+            }
+        }
+        function showEffects() {
+            const correctLabel = document.getElementById(correct);
+            const resultDiv = document.getElementById('result');
+            if (chosen) {
+                if (chosen === correct) {
+                    if (correctLabel) correctLabel.classList.add('choice-correct');
+                    if (resultDiv) {
+                        resultDiv.textContent = correctMsgs[Math.floor(Math.random() * correctMsgs.length)];
+                        resultDiv.className = "result-correct pro-correct-anim";
+                    }
+                    createCelebration();
+                } else {
+                    const chosenLabel = document.getElementById(chosen);
+                    if (chosenLabel) chosenLabel.classList.add('choice-wrong');
+                    if (correctLabel) correctLabel.classList.add('choice-correct');
+                    if (resultDiv) {
+                        resultDiv.textContent = wrongMsgs[Math.floor(Math.random() * wrongMsgs.length)];
+                        resultDiv.className = "result-wrong pro-wrong-anim";
+                    }
+                    /* ── Auto-increment error counter on wrong answer ── */
+                    try {
+                        const errKey = 'anki_errors_' + prefix;
+                        let errCount = parseInt(localStorage.getItem(errKey) || '0', 10) || 0;
+                        errCount++;
+                        localStorage.setItem(errKey, errCount);
+                        /* Update the badge button immediately */
+                        const display = document.getElementById('errorCountDisplay');
+                        const bigNum = document.getElementById('errorBigNum');
+                        const errBtn = document.getElementById('errorCountBtn');
+                        if (display) display.textContent = errCount + ' خطأ';
+                        if (bigNum) bigNum.textContent = errCount;
+                        if (errBtn) errBtn.classList.add('has-errors');
+                        /* Flash the button to draw attention */
+                        if (errBtn) {
+                            errBtn.style.transition = 'transform 0.15s ease';
+                            errBtn.style.transform = 'scale(1.25)';
+                            setTimeout(() => { errBtn.style.transform = 'scale(1)'; }, 300);
+                        }
+                    } catch (e) { }
+                }
+            } else {
+                if (correctLabel) correctLabel.classList.add('choice-skip');
+                if (resultDiv) { resultDiv.textContent = "الإجابة الصحيحة 👇"; resultDiv.className = "result-skip"; }
+            }
+            if (correctBox) { correctBox.style.display = 'flex'; correctBox.classList.add('bounce-in'); }
+        }
+        showEffects();
+        function toggleBox(btnId, boxId, showText, hideText, startOpen) {
+            const btn = document.getElementById(btnId);
+            const box = document.getElementById(boxId);
+            if (btn && box) {
+                let busy = false;
+                if (startOpen) btn.textContent = hideText;
+                btn.addEventListener("click", () => {
+                    if (busy) return;
+                    busy = true;
+                    if (box.style.display === "none") {
+                        box.style.display = "block";
+                        box.classList.remove("slide-down");
+                        void box.offsetWidth;
+                        box.classList.add("slide-down");
+                        btn.textContent = hideText;
+                        setTimeout(() => { busy = false; }, 400);
+                    } else {
+                        box.style.display = "none";
+                        btn.textContent = showText;
+                        busy = false;
+                    }
+                });
+            }
+        }
+        toggleBox("showIMNotes", "imNotes", "📘 IntuMedix Notes", "Hide 📘", false);
+        toggleBox("showUSMLENotes", "usmleNotes", "📗 USMLE Notes", "Hide 📗", false);
+        toggleBox("showSMLENotes", "smleNotes", "📙 SMLE Notes", "Hide 📙", false);
+        toggleBox("showTraps", "trapNotes", "⚠️ Exam Traps", "Hide ⚠️", false);
+        toggleBox("showLikelihood", "likelihoodNotes", "🧠 Likelihood DD", "Hide 🧠", false);
+        toggleBox("showOptions", "optionsNotes", "🔍 Options DD", "Hide 🔍", false);
+        toggleBox("showSourceNotes", "sourceNotes", "📘 Source notes", "Hide 📘", false);
+        /* ── Toggle All Notes ── */
+        const allNotesToggleBtn = document.getElementById('toggleAllNotesBtn');
+        const noteBoxesConfig = [
+            { btn: 'showIMNotes', box: 'imNotes', showText: '📘 IntuMedix Notes', hideText: 'Hide 📘' },
+            { btn: 'showUSMLENotes', box: 'usmleNotes', showText: '📗 USMLE Notes', hideText: 'Hide 📗' },
+            { btn: 'showSMLENotes', box: 'smleNotes', showText: '📙 SMLE Notes', hideText: 'Hide 📙' },
+            { btn: 'showTraps', box: 'trapNotes', showText: '⚠️ Exam Traps', hideText: 'Hide ⚠️' },
+            { btn: 'showLikelihood', box: 'likelihoodNotes', showText: '🧠 Likelihood DD', hideText: 'Hide 🧠' },
+            { btn: 'showOptions', box: 'optionsNotes', showText: '🔍 Options DD', hideText: 'Hide 🔍' },
+            { btn: 'showSourceNotes', box: 'sourceNotes', showText: '📘 Source notes', hideText: 'Hide 📘' }
+        ];
+        const renderedNotes = noteBoxesConfig.filter(n => document.getElementById(n.btn));
+        if (renderedNotes.length > 0 && allNotesToggleBtn) {
+            allNotesToggleBtn.style.display = 'block';
+            let allOpen = false;
+            allNotesToggleBtn.addEventListener('click', () => {
+                allOpen = !allOpen;
+                allNotesToggleBtn.textContent = allOpen ? '📂 إخفاء جميع الملاحظات' : '📂 إظهار جميع الملاحظات';
+
+                renderedNotes.forEach(n => {
+                    const btn = document.getElementById(n.btn);
+                    const box = document.getElementById(n.box);
+                    if (btn && box) {
+                        if (allOpen) {
+                            box.style.display = 'block';
+                            box.classList.remove("slide-down");
+                            void box.offsetWidth;
+                            box.classList.add("slide-down");
+                            btn.textContent = n.hideText;
+                        } else {
+                            box.style.display = 'none';
+                            btn.textContent = n.showText;
+                        }
+                    }
+                });
+            });
+        }
+        /* ── Handle Tags ── */
+        const rawTagsDiv = document.getElementById('rawTags');
+        if (rawTagsDiv && rawTagsDiv.textContent) {
+            const tags = rawTagsDiv.textContent.split('::').map(t => t.trim()).filter(Boolean);
+            const tagsHtml = tags.map(t => `<span class="page-tag">${t}</span>`).join('');
+            const tagsContainer = document.getElementById('pageTagsContainer');
+            if (tagsContainer) tagsContainer.innerHTML = tagsHtml;
+        }
+        /* ── Handle Key Words ── */
+        const rawKwDiv = document.getElementById('rawKeywords');
+        if (rawKwDiv && rawKwDiv.textContent) {
+            const allWords = rawKwDiv.textContent.split(',').map(w => w.trim()).filter(Boolean);
+            const kwContainer = document.getElementById('kwContainer');
+            if (kwContainer) {
+                // On the BACK: show ALL keywords. Answer keyword (in parentheses) gets a special style.
+                kwContainer.innerHTML = allWords.map((w, i) => {
+                    const isAnswer = /^\(.*\)$/.test(w);
+                    const displayText = isAnswer ? '✅ ' + w.replace(/^\(|\)$/g, '') : w;
+                    const cls = isAnswer ? 'badge badge-answer' : 'badge';
+                    return `<span class="${cls}" style="animation-delay:${i * 0.08}s">${displayText}</span>`;
+                }).join('');
+            }
+        }
+        /* ── Highlight keywords in question text (back card only) ── */
+        if (rawKwDiv && rawKwDiv.textContent) {
+            const allWords = rawKwDiv.textContent.split(',').map(w => w.trim()).filter(Boolean);
+            const visibleWords = allWords.filter(w => !/^\(.*\)$/.test(w));
+            const qBox = document.getElementById('questionBox');
+            if (qBox && visibleWords.length > 0) {
+                function highlightInNode(node, word) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const parent = node.parentNode;
+                        if (parent && parent.classList && parent.classList.contains('kw-highlight')) return;
+                        const text = node.nodeValue;
+                        const idx = text.toLowerCase().indexOf(word.toLowerCase());
+                        if (idx === -1) return;
+                        const frag = document.createDocumentFragment();
+                        if (idx > 0) frag.appendChild(document.createTextNode(text.substring(0, idx)));
+                        const span = document.createElement('span');
+                        span.className = 'kw-highlight';
+                        span.textContent = text.substring(idx, idx + word.length);
+                        frag.appendChild(span);
+                        const after = text.substring(idx + word.length);
+                        if (after) {
+                            const restNode = document.createTextNode(after);
+                            frag.appendChild(restNode);
+                            parent.replaceChild(frag, node);
+                            highlightInNode(restNode, word);
+                        } else {
+                            parent.replaceChild(frag, node);
+                        }
+                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                        Array.from(node.childNodes).forEach(child => highlightInNode(child, word));
+                    }
+                }
+                visibleWords.forEach(w => highlightInNode(qBox, w));
+            }
+        }
+        /* ── Fix Explicit Newlines in Notes & Explanation ── */
+        const textElements = document.querySelectorAll('.im-notes, .usmle-notes, .smle-notes, .trap-notes, .likelihood-notes, .options-notes, .source-notes, .explanation');
+        textElements.forEach(el => {
+            if (el.innerHTML.includes('\\n')) {
+                el.innerHTML = el.innerHTML.replace(/\\\\n/g, '<br>').replace(/\\n/g, '<br>');
+            }
+        });
+        /* ── Format Options DD: each option (A-E) on its own line ── */
+        const optionsEl = document.getElementById('optionsNotes');
+        if (optionsEl) {
+            const header = optionsEl.querySelector('.notes-box-header');
+            const rawEl = document.getElementById('rawOptionsDD');
+            const rawTextForFormatting = htmlToPlainText(rawEl || optionsEl);
+            const optMapForFormatting = parseOptionsBetter(rawTextForFormatting);
+
+            if (Object.keys(optMapForFormatting).length > 0) {
+                let newHtml = '';
+                ['A', 'B', 'C', 'D', 'E'].forEach(letter => {
+                    if (optMapForFormatting[letter]) {
+                        newHtml += `<div class="options-dd-line" style="margin-bottom: 8px; line-height: 1.6; border-bottom: 1px solid rgba(128,128,128,0.15); padding-bottom: 6px;"><strong>${letter}.</strong> ${optMapForFormatting[letter]}</div>`;
+                    }
+                });
+
+                // Remove the last border-bottom for clean styling
+                newHtml = newHtml.replace(/border-bottom: 1px solid rgba\(128,128,128,0\.15\); padding-bottom: 6px;(?="><\/div>$)/, '');
+
+                if (header) {
+                    let toRemove = [];
+                    let n = header.nextSibling;
+                    while (n) { toRemove.push(n); n = n.nextSibling; }
+                    toRemove.forEach(n => n.parentNode && n.parentNode.removeChild(n));
+
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = newHtml;
+                    while (wrapper.firstChild) optionsEl.appendChild(wrapper.firstChild);
+                } else {
+                    optionsEl.innerHTML = newHtml;
+                }
+            } else {
+                let html = optionsEl.innerHTML;
+                html = html.replace(/([.!?])\s+(?=[B-E]\s*[:\)\.])/g, '$1<br>');
+                html = html.replace(/(?<=[a-z,])\s{1,3}(?=[B-E]\s*[:\)\.])/g, '<br>');
+                optionsEl.innerHTML = html;
+            }
+        }
+        /* ── Option Explain Popup: parse Options DD per letter ── */
+        (function initOptionExplain() {
+            const rawEl = document.getElementById('rawOptionsDD');
+            const rawText = htmlToPlainText(rawEl);
+            const correctAns = "{{correct_answer}}".trim().toUpperCase();
+            const optMap = parseOptionsBetter(rawText);
+            /* Style buttons based on data availability */
+            document.querySelectorAll('.opt-info-btn').forEach(btn => {
+                const letter = btn.getAttribute('data-opt');
+                if (!optMap[letter]) btn.classList.add('no-data');
+            });
+            window.toggleOptionExplain = function (letter) {
+                const box = document.getElementById('opt-explain-' + letter);
+                const btn = document.querySelector('.opt-info-btn[data-opt="' + letter + '"]');
+                if (!box) return;
+                const isOpen = box.classList.contains('visible');
+                if (isOpen) {
+                    /* Toggle OFF: collapse this box */
+                    box.classList.remove('visible');
+                    if (btn) btn.classList.remove('is-open');
+                    return;
+                }
+                /* Build content if not yet built */
+                if (!box._built) {
+                    const isCorrect = letter.toUpperCase() === correctAns;
+                    const txt = optMap[letter];
+                    const verdictClass = isCorrect ? 'correct' : 'wrong';
+                    const verdictText = isCorrect ? '✅ هذا الخيار صحيح' : '❌ هذا الخيار خاطئ';
+                    const explainTextClass = isCorrect ? 'text-correct' : 'text-wrong';
+                    box.style.borderLeftColor = isCorrect ? '#34d399' : '#f87171';
+                    box.innerHTML =
+                        '<div class="opt-explain-inner">' +
+                        '<div class="opt-explain-verdict-inline ' + verdictClass + '">' + verdictText + '</div>' +
+                        '<div class="opt-explain-text ' + explainTextClass + '">' +
+                        (txt || 'لا يوجد شرح متاح لهذا الخيار في حقل Options DD.') +
+                        '</div>' +
+                        '</div>';
+                    box._built = true;
+                }
+                /* Toggle ON: expand */
+                box.classList.add('visible');
+                if (btn) btn.classList.add('is-open');
+            };
+        })();
+        /* ── Format Likelihood DD: each sentence/item on its own line ── */
+        const likelihoodEl = document.getElementById('likelihoodNotes');
+        if (likelihoodEl) {
+            // Get the content area (everything after the header div)
+            const header = likelihoodEl.querySelector('.notes-box-header');
+            // Collect all child nodes after the header
+            let rawHtml = '';
+            let node = header ? header.nextSibling : likelihoodEl.firstChild;
+            while (node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    rawHtml += node.nodeValue;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    rawHtml += node.outerHTML;
+                }
+                node = node.nextSibling;
+            }
+            // Normalize <br> variants to newlines
+            rawHtml = rawHtml.replace(/<br\s*\/?>/gi, '\n');
+            // Replace HTML block tags with newlines
+            rawHtml = rawHtml.replace(/<\/(p|div|li|tr)>/gi, '\n');
+            rawHtml = rawHtml.replace(/<(p|div|li|tr)[^>]*>/gi, '');
+            // Strip remaining tags
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = rawHtml;
+            let plainText = tempDiv.textContent || tempDiv.innerText || '';
+            // Split on: newline, bullet •, slash surrounded by spaces, or after sentence-ending punctuation before capital
+            let lines = plainText
+                .split(/\n|•|(?<=[.!?])\s{1,3}(?=[A-Z0-9])|(?<=\d)\s*[-–—]\s*(?=[A-Z])/)
+                .map(l => l.replace(/^[\s\-–—•\/]+|[\s\-–—•\/]+$/g, '').trim())
+                .filter(l => l.length > 1);
+            // Further split lines that contain " / " or " - " patterns for DD lists
+            let finalLines = [];
+            lines.forEach(line => {
+                // Split on " / " separating two diagnosis-like entries
+                const slashParts = line.split(/\s+\/\s+/);
+                if (slashParts.length > 1) {
+                    slashParts.forEach(p => { if (p.trim().length > 1) finalLines.push(p.trim()); });
+                } else {
+                    finalLines.push(line);
+                }
+            });
+            // Rebuild as styled lines
+            const linesHtml = finalLines.map(l => `<span class="likelihood-line">${l}</span>`).join('');
+            // Remove old content nodes after header and inject new
+            if (header) {
+                let toRemove = [];
+                let n = header.nextSibling;
+                while (n) { toRemove.push(n); n = n.nextSibling; }
+                toRemove.forEach(n => n.parentNode && n.parentNode.removeChild(n));
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = linesHtml;
+                while (wrapper.firstChild) likelihoodEl.appendChild(wrapper.firstChild);
+            } else {
+                likelihoodEl.innerHTML = linesHtml;
+            }
+        }
+        /* ── Error Counter ── */
+        (function initErrorCounter() {
+            const key = 'anki_errors_' + prefix;
+            let count = 0;
+            try { count = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) { }
+            function updateErrorUI() {
+                const display = document.getElementById('errorCountDisplay');
+                const bigNum = document.getElementById('errorBigNum');
+                const btn = document.getElementById('errorCountBtn');
+                if (display) display.textContent = count + ' خطأ';
+                if (bigNum) bigNum.textContent = count;
+                if (btn) {
+                    if (count > 0) btn.classList.add('has-errors');
+                    else btn.classList.remove('has-errors');
+                }
+            }
+            updateErrorUI();
+            window.openErrorPopup = function () {
+                const pop = document.getElementById('errorPopup');
+                if (pop) { pop.style.display = 'flex'; updateErrorUI(); }
+            };
+            window.closeErrorPopup = function () {
+                const pop = document.getElementById('errorPopup');
+                if (pop) pop.style.display = 'none';
+            };
+            window.addOneError = function () {
+                count++;
+                try { localStorage.setItem(key, count); } catch (e) { }
+                updateErrorUI();
+            };
+            window.setManualError = function () {
+                const inp = document.getElementById('errorManualInput');
+                if (!inp) return;
+                const val = parseInt(inp.value, 10);
+                if (!isNaN(val) && val >= 0) {
+                    count = val;
+                    try { localStorage.setItem(key, count); } catch (e) { }
+                    inp.value = '';
+                    updateErrorUI();
+                }
+            };
+            window.resetErrors = function () {
+                count = 0;
+                try { localStorage.setItem(key, 0); } catch (e) { }
+                updateErrorUI();
+            };
+        })();
+        /* ── Personal Notes ── */
+        (function initPersonalNotes() {
+            const key = 'anki_notes_' + prefix;
+            let savedNote = '';
+            try { savedNote = localStorage.getItem(key) || ''; } catch (e) { }
+            const rawField = document.getElementById('rawMyNotes');
+            const fieldVal = rawField ? rawField.innerHTML.trim() : '';
+            if (fieldVal) savedNote = fieldVal;
+            function saveToField(val) {
+                try { pycmd('setfield:My Notes:' + val); } catch (e) { }
+            }
+            const displayBox = document.getElementById('personalNotesDisplayBox');
+            const displayText = document.getElementById('personalNotesDisplayText');
+            const notesBtn = document.getElementById('personalNotesBtn');
+            if (savedNote) {
+                if (displayBox) { displayBox.style.display = 'block'; }
+                if (displayText) { displayText.innerHTML = savedNote; }
+                if (notesBtn) { notesBtn.classList.add('has-notes'); }
+            }
+            
+            window.formatNotes = function(command, value = null) {
+                document.execCommand(command, false, value);
+                const ta = document.getElementById('notesTextarea');
+                if (ta) ta.focus();
+            };
+
+            window.openNotesPopup = function () {
+                const pop = document.getElementById('notesPopup');
+                const ta = document.getElementById('notesTextarea');
+                const fb = document.getElementById('notesSaveFeedback');
+                if (!pop) return;
+                try { savedNote = localStorage.getItem(key) || ''; } catch (e) { }
+                const fv = rawField ? rawField.innerHTML.trim() : '';
+                if (fv) savedNote = fv;
+                if (ta) ta.innerHTML = savedNote;
+                if (fb) fb.textContent = '';
+                pop.style.display = 'flex';
+                
+                // Focus synchronously to trigger soft keyboard on mobile devices
+                if (ta) {
+                    ta.focus();
+                    try {
+                        const range = document.createRange();
+                        const sel = window.getSelection();
+                        range.selectNodeContents(ta);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    } catch(e) {}
+                }
+            };
+            window.closeNotesPopup = function () {
+                const pop = document.getElementById('notesPopup');
+                if (pop) pop.style.display = 'none';
+            };
+            window.saveNotes = function () {
+                const ta = document.getElementById('notesTextarea');
+                const fb = document.getElementById('notesSaveFeedback');
+                if (!ta) return;
+                savedNote = ta.innerHTML.trim();
+                try { localStorage.setItem(key, savedNote); } catch (e) { }
+                saveToField(savedNote);
+                if (displayText) displayText.innerHTML = savedNote;
+                if (displayBox) displayBox.style.display = (savedNote && savedNote !== '<br>') ? 'block' : 'none';
+                if (notesBtn) {
+                    if (savedNote && savedNote !== '<br>') notesBtn.classList.add('has-notes');
+                    else notesBtn.classList.remove('has-notes');
+                }
+                if (fb) {
+                    fb.textContent = '✅ تم الحفظ بنجاح!';
+                    setTimeout(() => { if (fb) fb.textContent = ''; }, 2000);
+                }
+            };
+            window.clearNotes = function () {
+                const ta = document.getElementById('notesTextarea');
+                const fb = document.getElementById('notesSaveFeedback');
+                savedNote = '';
+                try { localStorage.removeItem(key); } catch (e) { }
+                saveToField('');
+                if (ta) ta.innerHTML = '';
+                if (displayText) displayText.innerHTML = '';
+                if (displayBox) displayBox.style.display = 'none';
+                if (notesBtn) notesBtn.classList.remove('has-notes');
+                if (fb) {
+                    fb.textContent = '🗑️ تم الحذف.';
+                    setTimeout(() => { if (fb) fb.textContent = ''; }, 1500);
+                }
+            };
+        })();
+        /* ── Conflict Popup (Back) ── */
+        (function initConflict() {
+            const rawConflict = document.getElementById('rawConflict');
+            const conflictField = rawConflict ? rawConflict.textContent.trim() : '';
+            const explanationEl = document.querySelector('.explanation');
+            const explanationTxt = explanationEl ? explanationEl.textContent : '';
+            /* ─ Keywords that suggest a conflicting or controversial answer ─ */
+            const CONFLICT_KEYWORDS = [
+                'controversial', 'debated', 'disputed', 'conflicting', 'some sources',
+                'some books', 'traditionally', 'alternatively', 'varies', 'minority view',
+                'not all sources', 'different sources', 'some guidelines',
+                'مختلف', 'خلاف', 'جدلي', 'بعض المصادر', 'اختلف', 'تباين', 'يختلف', 'خلافي',
+                'بعض الكتب', 'بعض المراجع', 'تقليدياً'
+            ];
+            const detectedKw = CONFLICT_KEYWORDS.find(kw =>
+                explanationTxt.toLowerCase().includes(kw.toLowerCase())
+            );
+            const hasFieldConflict = conflictField.length > 0;
+            const hasKeywordConflict = !!detectedKw;
+            const shouldShow = hasFieldConflict || hasKeywordConflict;
+            const conflictBtn = document.getElementById('conflictBtn');
+            if (conflictBtn && shouldShow) {
+                conflictBtn.style.display = 'inline-flex';
+                if (hasKeywordConflict && !hasFieldConflict)
+                    conflictBtn.classList.add('conflict-auto-detected');
+            }
+            window.openConflictPopup = function () {
+                const pop = document.getElementById('conflictPopup');
+                if (!pop) return;
+                /* Auto-detection banner */
+                const autoBanner = document.getElementById('conflictAutoBanner');
+                const kwSpan = document.getElementById('conflictKeywordSpan');
+                if (autoBanner && kwSpan) {
+                    if (hasKeywordConflict) {
+                        kwSpan.textContent = '“' + detectedKw + '”';
+                        autoBanner.style.display = 'flex';
+                    } else {
+                        autoBanner.style.display = 'none';
+                    }
+                }
+                /* Field content */
+                const fieldBox = document.getElementById('conflictFieldBox');
+                const fieldText = document.getElementById('conflictFieldText');
+                if (hasFieldConflict && fieldBox && fieldText) {
+                    fieldText.textContent = conflictField;
+                    fieldBox.style.display = 'block';
+                }
+                pop.style.display = 'flex';
+            };
+            window.closeConflictPopup = function () {
+                const pop = document.getElementById('conflictPopup');
+                if (pop) pop.style.display = 'none';
+            };
+        })();
+        /* ── Images Toggle ── */
+        window.toggleImagesBox = function () {
+            const box = document.getElementById('imagesBox');
+            const btn = document.getElementById('showImages');
+            if (!box) return;
+            if (box.style.display === 'none') {
+                box.style.display = 'block';
+                box.classList.remove('slide-down-pro');
+                void box.offsetWidth;
+                box.classList.add('slide-down-pro');
+                if (btn) btn.classList.add('is-open');
+            } else {
+                box.classList.remove('slide-down-pro');
+                box.style.display = 'none';
+                if (btn) btn.classList.remove('is-open');
+            }
+        };
+        /* ── Copy Box Text ── */
+        function extractBoxText(boxId) {
+            const box = document.getElementById(boxId);
+            if (!box) return '';
+            const clone = box.cloneNode(true);
+            const cloneHeader = clone.querySelector('.notes-box-header');
+            if (cloneHeader) cloneHeader.remove();
+            clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+            clone.querySelectorAll('p, div, li, span.likelihood-line').forEach(el => {
+                el.insertAdjacentText('afterend', '\n');
+            });
+            return (clone.textContent || clone.innerText || '').replace(/\n{3,}/g, '\n\n').trim();
+        }
+        window.copyBoxText = function (boxId) {
+            const text = extractBoxText(boxId);
+            if (!text) { showBoxFeedback(boxId, '⚠️ لا يوجد نص'); return; }
+            /* ─ Most reliable copy in Anki: off-screen textarea with real visibility ─ */
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            /* NOT opacity:0 / z-index:-1 — those kill focus in Qt WebEngine */
+            ta.style.cssText = [
+                'position:fixed',
+                'top:-9999px',
+                'left:-9999px',
+                'width:1px',
+                'height:1px',
+                'padding:0',
+                'border:none',
+                'outline:none',
+                'resize:none',
+                'box-shadow:none',
+                'font-size:1px'
+            ].join(';');
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { ta.setSelectionRange(0, 99999); } catch (e) { }
+            let copied = false;
+            try { copied = document.execCommand('copy'); } catch (e) { copied = false; }
+            document.body.removeChild(ta);
+            if (copied) {
+                showBoxFeedback(boxId, '✅ تم النسخ!');
+            } else {
+                /* Fallback: select the visible rendered text of the box */
+                try {
+                    const box = document.getElementById(boxId);
+                    const hdr = box ? box.querySelector('.notes-box-header') : null;
+                    const range = document.createRange();
+                    range.selectNodeContents(box);
+                    if (hdr) range.setStartAfter(hdr);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    copied = document.execCommand('copy');
+                    sel.removeAllRanges();
+                    showBoxFeedback(boxId, copied ? '✅ تم النسخ!' : '❌ تعذّر النسخ');
+                } catch (e2) {
+                    showBoxFeedback(boxId, '❌ تعذّر النسخ');
+                }
+            }
+        };
+        /* ── Send Box to My Notes ── */
+        window.sendBoxToMyNotes = function (boxId, label) {
+            const box = document.getElementById(boxId);
+            if (!box) return;
+            
+            const clone = box.cloneNode(true);
+            // Remove header and button controls in the cloned element
+            const header = clone.querySelector('.notes-box-header');
+            if (header) header.remove();
+            clone.querySelectorAll('button, .notes-box-actions').forEach(el => el.remove());
+            
+            const htmlContent = clone.innerHTML.trim();
+            if (!htmlContent) return;
+            
+            // Build prefix
+            const entry = '<b>[' + label + ']:</b><br>' + htmlContent;
+            
+            // Merge with existing notes
+            const pText = document.getElementById('qmetaInner') ? document.getElementById('qmetaInner').textContent : '';
+            let pfx = pText.replace(/[^a-zA-Z0-9]/g, '');
+            if (!pfx || pfx === 'Q') {
+                const rawQ = document.getElementById('questionBox') ? document.getElementById('questionBox').textContent : '';
+                let hash = 0;
+                for (let i = 0; i < rawQ.length; i++) { hash = ((hash << 5) - hash) + rawQ.charCodeAt(i); hash |= 0; }
+                pfx = 'H' + Math.abs(hash).toString(36);
+            }
+            const key = 'anki_notes_' + pfx;
+            let existing = '';
+            try { existing = localStorage.getItem(key) || ''; } catch (e) { }
+            
+            const separator = existing ? '<br><hr><br>' : '';
+            const newNote = existing + separator + entry;
+            
+            try { localStorage.setItem(key, newNote); } catch (e) { }
+            try { pycmd('setfield:My Notes:' + newNote); } catch (e) { }
+            
+            // Update display
+            const displayBox = document.getElementById('personalNotesDisplayBox');
+            const displayText = document.getElementById('personalNotesDisplayText');
+            const notesBtn = document.getElementById('personalNotesBtn');
+            if (displayText) displayText.innerHTML = newNote;
+            if (displayBox) displayBox.style.display = 'block';
+            if (notesBtn) notesBtn.classList.add('has-notes');
+            showBoxFeedback(boxId, '✅ أُضيف لملاحظاتي!');
+        };
+        function showBoxFeedback(boxId, msg) {
+            const box = document.getElementById(boxId);
+            if (!box) return;
+            let fb = box.querySelector('.nb-feedback');
+            if (!fb) {
+                fb = document.createElement('span');
+                fb.className = 'nb-feedback';
+                fb.style.cssText = 'font-size:0.78em;color:#34d399;margin-right:8px;font-weight:700;transition:opacity 0.5s;';
+                const header = box.querySelector('.notes-box-header');
+                if (header) header.appendChild(fb);
+            }
+            fb.textContent = msg;
+            fb.style.opacity = '1';
+            setTimeout(() => { fb.style.opacity = '0'; setTimeout(() => { fb.textContent = ''; }, 500); }, 1800);
+        }
+        /* ── Suggested Reconstruction (Back) ── */
+        (function initReconstruction() {
+            const rawEl = document.getElementById('rawReconstruction');
+            const rawText = rawEl ? rawEl.textContent.trim() : '';
+            const reconstructBtn = document.getElementById('reconstructBtn');
+            const hasReconstruction = rawText && rawText.length > 0 && !rawText.toLowerCase().includes('no reconstruction needed');
+            if (hasReconstruction && reconstructBtn) {
+                reconstructBtn.style.display = 'inline-flex';
+            }
+            window.toggleReconstruction = function (e) {
+                if (e) e.stopPropagation();
+                const box = document.getElementById('reconstructionBox');
+                const btn = document.getElementById('reconstructBtn');
+                if (!box) return;
+                if (box.style.display === 'none') {
+                    box.style.display = 'block';
+                    box.classList.remove('slide-down');
+                    void box.offsetWidth;
+                    box.classList.add('slide-down');
+                    if (btn) {
+                        btn.classList.add('is-open');
+                        btn.textContent = '🔧 Hide Reconstruction';
+                    }
+                } else {
+                    box.style.display = 'none';
+                    if (btn) {
+                        btn.classList.remove('is-open');
+                        btn.textContent = '🔧 Reconstruction';
+                    }
+                }
+            };
+        })();
+        /* ── Source Notes Alert Logic (Back) ── */
+        (function initSourceNotesAlert() {
+            const rawEl = document.getElementById('rawSourceNotes');
+            const rawHtml = rawEl ? rawEl.innerHTML.trim() : '';
+            const sourceAlertBtn = document.getElementById('sourceAlertBtn');
+
+            // Check if there is valid content (text or media elements like images) in Source Notes
+            const hasSourceNotes = rawHtml && rawHtml.length > 0 && !rawHtml.startsWith('{' + '{') &&
+                (rawEl.textContent.trim().length > 0 || rawEl.querySelector('img, svg, video, audio, iframe') !== null);
+
+            if (hasSourceNotes && sourceAlertBtn) {
+                sourceAlertBtn.style.display = 'inline-flex';
+            }
+
+            window.openSourceAlertPopup = function () {
+                const pop = document.getElementById('sourceAlertPopup');
+                const textEl = document.getElementById('sourceAlertFieldText');
+                if (pop && textEl) {
+                    textEl.innerHTML = rawHtml;
+                    pop.style.display = 'flex';
+                }
+            };
+
+            window.closeSourceAlertPopup = function () {
+                const pop = document.getElementById('sourceAlertPopup');
+                if (pop) pop.style.display = 'none';
+            };
+        })();
+        /* ── Export Notes as Image ── */
+        window.openExportPopup = function () {
+            const notesPopup = document.getElementById('notesPopup');
+            if (notesPopup) notesPopup.style.display = 'none';
+
+            const ta = document.getElementById('notesTextarea');
+            const displayText = document.getElementById('personalNotesDisplayText');
+            if (ta && displayText && !ta.innerHTML.trim()) {
+                ta.innerHTML = displayText.innerHTML.trim();
+            }
+
+            const exportPopup = document.getElementById('exportNotesPopup');
+            if (exportPopup) {
+                exportPopup.style.display = 'flex';
+                
+                // Initialize theme circle buttons active state
+                document.querySelectorAll('.theme-opt-btn').forEach(btn => {
+                    if (btn.getAttribute('data-theme') === selectedTheme) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+                
+                // Reset size select to auto
+                const sizeSelect = document.getElementById('exportSizeSelect');
+                if (sizeSelect) sizeSelect.value = 'auto';
+
+                setTimeout(() => {
+                    updateExportPreview();
+                }, 100);
+            }
+        };
+
+        window.closeExportPopup = function () {
+            const exportPopup = document.getElementById('exportNotesPopup');
+            if (exportPopup) {
+                exportPopup.style.display = 'none';
+            }
+        };
+
+        window.goBackToEditor = function () {
+            const exportPopup = document.getElementById('exportNotesPopup');
+            if (exportPopup) exportPopup.style.display = 'none';
+            
+            const notesPopup = document.getElementById('notesPopup');
+            if (notesPopup) notesPopup.style.display = 'flex';
+        };
+
+        function drawTelegramIcon(ctx, x, y, size) {
+            ctx.save();
+            // Draw blue background circle
+            ctx.fillStyle = '#24A1DE';
+            ctx.beginPath();
+            ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw white paper plane
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(x + size * 0.75, y + size * 0.28);
+            ctx.lineTo(x + size * 0.32, y + size * 0.49);
+            ctx.lineTo(x + size * 0.49, y + size * 0.56);
+            ctx.lineTo(x + size * 0.53, y + size * 0.74);
+            ctx.lineTo(x + size * 0.61, y + size * 0.62);
+            ctx.lineTo(x + size * 0.72, y + size * 0.70);
+            ctx.closePath();
+            ctx.fill();
+
+            // Plane shadow
+            ctx.fillStyle = '#b3e5fc';
+            ctx.beginPath();
+            ctx.moveTo(x + size * 0.49, y + size * 0.56);
+            ctx.lineTo(x + size * 0.53, y + size * 0.74);
+            ctx.lineTo(x + size * 0.61, y + size * 0.62);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function getParagraphsFromHtml(container) {
+            if (!container) return [];
+            const paragraphs = [];
+            
+            let clone = container.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.visibility = 'hidden';
+            clone.style.pointerEvents = 'none';
+            document.body.appendChild(clone);
+            
+            const hilites = clone.querySelectorAll('[style*="background-color"]');
+            for (let i = 0; i < hilites.length; i++) {
+                let el = hilites[i];
+                if (el.style.backgroundColor && el.style.backgroundColor !== 'transparent' && el.style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                    el.insertBefore(document.createTextNode('[[HL]]'), el.firstChild);
+                    el.appendChild(document.createTextNode('[[/HL]]'));
+                }
+            }
+            
+            function processNode(node, currentAlign = 'auto') {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.nodeValue.trim();
+                    if (text) {
+                        paragraphs.push({ text: text, align: currentAlign });
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tag = node.tagName.toLowerCase();
+                    
+                    if (tag === 'br') {
+                        paragraphs.push({ text: '', align: currentAlign });
+                        return;
+                    }
+                    
+                    if (tag === 'ul' || tag === 'ol') {
+                        const items = node.querySelectorAll('li');
+                        for (let j = 0; j < items.length; j++) {
+                            const item = items[j];
+                            let align = currentAlign;
+                            if (item.style && item.style.textAlign) {
+                                if (item.style.textAlign === 'left') align = 'left';
+                                else if (item.style.textAlign === 'right') align = 'right';
+                                else if (item.style.textAlign === 'center') align = 'center';
+                            }
+                            let text = item.innerText || item.textContent || '';
+                            text = text.trim();
+                            if (text) {
+                                paragraphs.push({ text: '• ' + text, align: align });
+                            }
+                        }
+                        return;
+                    }
+                    
+                    if (node.querySelector && node.querySelector('ul, ol')) {
+                         const children = node.childNodes;
+                         for (let j = 0; j < children.length; j++) {
+                             processNode(children[j], currentAlign);
+                         }
+                         return;
+                    }
+                    
+                    let align = currentAlign;
+                    if (node.style && node.style.textAlign) {
+                        if (node.style.textAlign === 'left') align = 'left';
+                        else if (node.style.textAlign === 'right') align = 'right';
+                        else if (node.style.textAlign === 'center') align = 'center';
+                    }
+                    
+                    let text = node.innerText || node.textContent || '';
+                    text = text.trim();
+                    
+                    if (tag === 'hr') {
+                        paragraphs.push({ text: '────────────────────────────────', align: 'center' });
+                    } else if (text !== '' || node.querySelector('br')) {
+                        paragraphs.push({ text: text, align: align });
+                    }
+                }
+            }
+            
+            const children = clone.childNodes;
+            for (let i = 0; i < children.length; i++) {
+                processNode(children[i]);
+            }
+            
+            document.body.removeChild(clone);
+            
+            if (paragraphs.length === 0) {
+                paragraphs.push({ text: '', align: 'auto' });
+            }
+            return paragraphs;
+        }
+
+        function drawTextBlock(ctx, paragraphs, xLeft, xRight, y, maxWidth, lineHeight, draw = true) {
+            let currentY = y;
+            let paras = Array.isArray(paragraphs) ? paragraphs : [{ text: paragraphs, align: 'auto' }];
+
+            for (let i = 0; i < paras.length; i++) {
+                const p = paras[i];
+                let rawText = p.text;
+                const align = p.align;
+
+                if (rawText === '') {
+                    currentY += lineHeight * 0.8;
+                    continue;
+                }
+
+                let charStyles = [];
+                let strippedText = '';
+                let inHL = false;
+
+                for (let k = 0; k < rawText.length; k++) {
+                    if (rawText.startsWith('[[HL]]', k)) {
+                        inHL = true;
+                        k += 5;
+                        continue;
+                    }
+                    if (rawText.startsWith('[[/HL]]', k)) {
+                        inHL = false;
+                        k += 6;
+                        continue;
+                    }
+                    strippedText += rawText[k];
+                    charStyles.push({ hl: inHL });
+                }
+
+                const isParaArabic = /[\u0600-\u06FF]/.test(strippedText);
+                const finalAlign = align === 'auto' ? (isParaArabic ? 'right' : 'left') : align;
+
+                if (draw) {
+                    ctx.textAlign = finalAlign;
+                    ctx.direction = isParaArabic ? 'rtl' : 'ltr';
+                }
+
+                const words = strippedText.split(' ');
+                let line = '';
+                let charOffset = 0;
+                const x = finalAlign === 'right' ? xRight : (finalAlign === 'center' ? (xLeft + xRight) / 2 : xLeft);
+
+                function drawHighlight(ctx, textLine, startIdx, endIdx, x, y, align, isRTL) {
+                    let widthBefore = ctx.measureText(textLine.substring(0, startIdx)).width;
+                    let widthHilite = ctx.measureText(textLine.substring(startIdx, endIdx)).width;
+                    let totalWidth = ctx.measureText(textLine.trim()).width;
+                    
+                    ctx.save();
+                    ctx.fillStyle = '#fef08a';
+                    let height = lineHeight * 0.95;
+                    let rectY = y - lineHeight * 0.75;
+                    let rectX;
+                    
+                    if (align === 'right') {
+                        rectX = x - widthBefore - widthHilite;
+                    } else if (align === 'left') {
+                        rectX = x + widthBefore;
+                    } else if (align === 'center') {
+                        if (isRTL) {
+                            let rightEdge = x + totalWidth / 2;
+                            rectX = rightEdge - widthBefore - widthHilite;
+                        } else {
+                            let leftEdge = x - totalWidth / 2;
+                            rectX = leftEdge + widthBefore;
+                        }
+                    }
+                    ctx.fillRect(rectX, rectY, widthHilite, height);
+                    ctx.restore();
+                }
+
+                function renderLine(textLine, offset) {
+                    if (!draw) return;
+                    let hlStart = -1;
+                    for (let j = 0; j < textLine.length; j++) {
+                        let isHL = charStyles[offset + j] && charStyles[offset + j].hl;
+                        if (isHL && hlStart === -1) {
+                            hlStart = j;
+                        } else if (!isHL && hlStart !== -1) {
+                            drawHighlight(ctx, textLine, hlStart, j, x, currentY, finalAlign, isParaArabic);
+                            hlStart = -1;
+                        }
+                    }
+                    if (hlStart !== -1) {
+                        drawHighlight(ctx, textLine, hlStart, textLine.length, x, currentY, finalAlign, isParaArabic);
+                    }
+                    ctx.fillText(textLine.trim(), x, currentY);
+                }
+
+                for (let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    let metrics = ctx.measureText(testLine);
+
+                    if (metrics.width > maxWidth && n > 0) {
+                        renderLine(line, charOffset);
+                        charOffset += line.length;
+                        line = words[n] + ' ';
+                        currentY += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                if (line.trim() !== '') {
+                    renderLine(line, charOffset);
+                }
+                currentY += lineHeight;
+            }
+            return currentY;
+        }
+
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        function getQuestionChoices() {
+            const choices = [];
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+            const correctAns = "{{correct_answer}}".trim().toUpperCase();
+            for (let letter of letters) {
+                const el = document.getElementById(letter) || document.getElementById(letter + '-label');
+                if (el) {
+                    const clone = el.cloneNode(true);
+                    clone.querySelectorAll('input, img, button').forEach(subEl => subEl.remove());
+                    const text = clone.textContent.trim().replace(/^\s*[A-E]\)\s*/, '');
+                    if (text && text !== 'N/A') {
+                        let prefix = letter + ') ';
+                        if (letter === correctAns) {
+                            prefix = '✅ ' + prefix;
+                        }
+                        choices.push(prefix + text);
+                    }
+                }
+            }
+            return choices;
+        }
+
+        function drawVectorLogo(ctx, x, y, size) {
+            ctx.save();
+            const grad = ctx.createLinearGradient(x, y, x, y + size);
+            grad.addColorStop(0, '#6366f1');
+            grad.addColorStop(1, '#a855f7');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${Math.floor(size * 0.45)}px system-ui, -apple-system, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.direction = 'ltr';
+            ctx.fillText('IM', x + size / 2, y + size / 2);
+            ctx.restore();
+        }
+
+        // Curated themes configuration
+        const themes = {
+            default: {
+                bgStart: '#f8fafc', bgEnd: '#f1f5f9',
+                textMain: '#0f172a', textSec: '#64748b',
+                border: 'rgba(0, 0, 0, 0.04)',
+                questionBg: 'rgba(0, 0, 0, 0.015)', questionBorder: 'rgba(0, 0, 0, 0.04)',
+                notesTitle: '#0284c7', accentLine: '#6366f1'
+            },
+            cream: {
+                bgStart: '#fdfbf7', bgEnd: '#f5ebd6',
+                textMain: '#2c1d11', textSec: '#7c5e43',
+                border: 'rgba(44, 29, 17, 0.04)',
+                questionBg: 'rgba(44, 29, 17, 0.015)', questionBorder: 'rgba(44, 29, 17, 0.04)',
+                notesTitle: '#c2410c', accentLine: '#ea580c'
+            },
+            mint: {
+                bgStart: '#f4fbf7', bgEnd: '#e2f4ea',
+                textMain: '#062f1e', textSec: '#3f7a60',
+                border: 'rgba(6, 47, 30, 0.04)',
+                questionBg: 'rgba(6, 47, 30, 0.015)', questionBorder: 'rgba(6, 47, 30, 0.04)',
+                notesTitle: '#0f766e', accentLine: '#0d9488'
+            },
+            lilac: {
+                bgStart: '#faf9fe', bgEnd: '#eddffd',
+                textMain: '#2a124d', textSec: '#6b5394',
+                border: 'rgba(42, 18, 77, 0.04)',
+                questionBg: 'rgba(42, 18, 77, 0.015)', questionBorder: 'rgba(42, 18, 77, 0.04)',
+                notesTitle: '#7e22ce', accentLine: '#9333ea'
+            },
+            peach: {
+                bgStart: '#fff7ed', bgEnd: '#ffedd5',
+                textMain: '#431407', textSec: '#9a3412',
+                border: 'rgba(67, 20, 7, 0.04)',
+                questionBg: 'rgba(67, 20, 7, 0.015)', questionBorder: 'rgba(67, 20, 7, 0.04)',
+                notesTitle: '#c2410c', accentLine: '#f97316'
+            },
+            rose: {
+                bgStart: '#fff1f2', bgEnd: '#ffe4e6',
+                textMain: '#4c0519', textSec: '#881337',
+                border: 'rgba(76, 5, 25, 0.04)',
+                questionBg: 'rgba(76, 5, 25, 0.015)', questionBorder: 'rgba(76, 5, 25, 0.04)',
+                notesTitle: '#be123c', accentLine: '#f43f5e'
+            },
+            teal: {
+                bgStart: '#f0fdfa', bgEnd: '#ccfbf1',
+                textMain: '#042f2e', textSec: '#115e59',
+                border: 'rgba(4, 47, 46, 0.04)',
+                questionBg: 'rgba(4, 47, 46, 0.015)', questionBorder: 'rgba(4, 47, 46, 0.04)',
+                notesTitle: '#0f766e', accentLine: '#14b8a6'
+            },
+            white: {
+                bgStart: '#ffffff', bgEnd: '#ffffff',
+                textMain: '#1e293b', textSec: '#64748b',
+                border: 'rgba(0, 0, 0, 0.06)',
+                questionBg: 'rgba(0, 0, 0, 0.02)', questionBorder: 'rgba(0, 0, 0, 0.06)',
+                notesTitle: '#0284c7', accentLine: '#3b82f6'
+            },
+            dark: {
+                bgStart: '#1e293b', bgEnd: '#0f172a',
+                textMain: '#f8fafc', textSec: '#94a3b8',
+                border: 'rgba(255, 255, 255, 0.04)',
+                questionBg: 'rgba(255, 255, 255, 0.02)', questionBorder: 'rgba(255, 255, 255, 0.05)',
+                notesTitle: '#38bdf8', accentLine: '#38bdf8'
+            },
+            midnight: {
+                bgStart: '#0b0f19', bgEnd: '#05070c',
+                textMain: '#f1f5f9', textSec: '#94a3b8',
+                border: 'rgba(255, 255, 255, 0.05)',
+                questionBg: 'rgba(255, 255, 255, 0.02)', questionBorder: 'rgba(255, 255, 255, 0.05)',
+                notesTitle: '#38bdf8', accentLine: '#6366f1'
+            }
+        };
+
+        let selectedTheme = localStorage.getItem('export_theme_preference') || 'default';
+
+        window.changeExportTheme = function (themeName) {
+            selectedTheme = themeName;
+            localStorage.setItem('export_theme_preference', themeName);
+            
+            // Update active state in UI
+            document.querySelectorAll('.theme-opt-btn').forEach(btn => {
+                if (btn.getAttribute('data-theme') === themeName) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            
+            updateExportPreview();
+        };
+
+        function stripHtml(html) {
+            if (!html) return '';
+            let text = html
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/p>/gi, '\n')
+                .replace(/<\/div>/gi, '\n')
+                .replace(/<li\s*\/?>/gi, '\n• ')
+                .replace(/<\/li>/gi, '')
+                .replace(/<\/?[^>]+(>|$)/g, '');
+            
+            const txt = document.createElement('textarea');
+            txt.innerHTML = text;
+            return txt.value.trim();
+        }
+
+        window.updateExportPreview = async function (safeMode = false) {
+            const canvas = document.getElementById('exportCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const theme = themes[selectedTheme] || themes.default;
+            const selectedSize = document.getElementById('exportSizeSelect')?.value || 'auto';
+
+            const ta = document.getElementById('notesTextarea');
+            const notesParas = ta ? getParagraphsFromHtml(ta) : [];
+            const notesTextLength = notesParas.reduce((acc, curr) => acc + curr.text.length, 0);
+
+            if (notesTextLength === 0) {
+                canvas.width = 400;
+                canvas.height = 150;
+                ctx.fillStyle = theme.bgStart;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = theme.textSec;
+                ctx.font = 'bold 14px system-ui, -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.direction = 'rtl';
+                ctx.fillText('لا توجد ملاحظات لتصديرها!', canvas.width / 2, canvas.height / 2);
+
+                const dataUrl = canvas.toDataURL('image/png');
+                const imgPreview = document.getElementById('exportImagePreview');
+                if (imgPreview) imgPreview.src = dataUrl;
+                return;
+            }
+
+            const includeQuestion = document.getElementById('exportIncludeQuestion')?.checked;
+
+            let watermarkLogo = null;
+            let smallLogo = null;
+            if (!safeMode) {
+                watermarkLogo = await loadImage('_IntuMedix_watermark.png');
+                smallLogo = await loadImage('_IntuMedix_logo.png');
+            }
+
+            const canvasWidth = 800;
+            const padding = 45;
+            const contentWidth = canvasWidth - (padding * 2);
+
+            // Pass 1: Calculate Heights
+            let currentY = 50; // top padding
+
+            // Header
+            currentY += 60;
+            currentY += 20;
+
+            // Question block (optional)
+            let questionBlockHeight = 0;
+            let questionYStart = currentY;
+            let questionText = '';
+            let choicesList = [];
+            if (includeQuestion) {
+                const metaEl = document.getElementById('qmetaInner');
+                const metaText = metaEl ? metaEl.textContent.trim() : '';
+                questionText = document.getElementById('questionBox')?.textContent.trim() || '';
+                questionText = questionText.replace(/^\s*\.\.\.\s*▾\s*/, '').trim();
+                if (metaText) {
+                    questionText = '[' + metaText + '] ' + questionText;
+                }
+                choicesList = getQuestionChoices();
+
+                ctx.font = 'italic 15px system-ui, -apple-system, sans-serif';
+                currentY = drawTextBlock(ctx, questionText, padding + 25, canvasWidth - padding - 25, currentY + 25, contentWidth - 50, 24, false);
+                currentY += 10;
+
+                ctx.font = '13px system-ui, -apple-system, sans-serif';
+                for (let choice of choicesList) {
+                    currentY = drawTextBlock(ctx, choice, padding + 25, canvasWidth - padding - 25, currentY, contentWidth - 50, 20, false);
+                }
+                currentY += 25; // bottom padding inside panel
+                questionBlockHeight = currentY - questionYStart;
+                currentY += 30; // space below panel
+            }
+
+            // Notes Title
+            currentY += 25; // padding before title
+            let titleYPos = currentY;
+            currentY += 35; // space under title
+
+            // Notes Text
+            let notesYStart = currentY;
+            ctx.font = 'bold 19.5px system-ui, -apple-system, sans-serif';
+            currentY = drawTextBlock(ctx, notesParas, padding, canvasWidth - padding, currentY, contentWidth, 34, false);
+            currentY += 30; // space after notes text
+
+            // Footer
+            currentY += 50;
+
+            let totalHeight = currentY;
+            if (selectedSize === 'a4') {
+                totalHeight = 1130;
+            } else if (selectedSize === 'square') {
+                totalHeight = 800;
+            }
+
+            const scale = 2.5;
+            canvas.width = canvasWidth * scale;
+            canvas.height = totalHeight * scale;
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(scale, scale);
+
+            // Pass 2: Actually Draw
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, totalHeight);
+            gradient.addColorStop(0, theme.bgStart);
+            gradient.addColorStop(1, theme.bgEnd);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvasWidth, totalHeight);
+
+            // Ambient glows (only for default theme)
+            if (selectedTheme === 'default') {
+                ctx.save();
+                const glow1 = ctx.createRadialGradient(0, 0, 50, 0, 0, 400);
+                glow1.addColorStop(0, 'rgba(99, 102, 241, 0.03)');
+                glow1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = glow1;
+                ctx.fillRect(0, 0, canvasWidth, totalHeight);
+
+                const glow2 = ctx.createRadialGradient(canvasWidth, totalHeight, 50, canvasWidth, totalHeight, 400);
+                glow2.addColorStop(0, 'rgba(168, 85, 247, 0.03)');
+                glow2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = glow2;
+                ctx.fillRect(0, 0, canvasWidth, totalHeight);
+                ctx.restore();
+            }
+
+            // Inner border frame
+            ctx.strokeStyle = theme.border;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(15, 15, canvasWidth - 30, totalHeight - 30);
+
+            // Top accent line
+            ctx.fillStyle = theme.accentLine;
+            ctx.fillRect(15, 15, canvasWidth - 30, 3);
+
+            // Draw watermark (center back, faint gray)
+            if (watermarkLogo && !safeMode) {
+                ctx.save();
+                ctx.globalAlpha = 0.05;
+                const aspect = watermarkLogo.width / watermarkLogo.height;
+                const wSize = 500;
+                const wHeight = wSize / aspect;
+                ctx.drawImage(watermarkLogo, (canvasWidth - wSize) / 2, (totalHeight - wHeight) / 2, wSize, wHeight);
+                ctx.restore();
+            } else {
+                ctx.save();
+                ctx.globalAlpha = 0.10;
+                ctx.fillStyle = theme.textMain;
+                ctx.font = 'bold 120px system-ui, -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('IntuMedix', canvasWidth / 2, totalHeight / 2);
+                ctx.restore();
+            }
+
+            // Header Logo and text
+            let headerX = padding;
+            if (smallLogo && !safeMode) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(padding + 20, 50 + 20, 20, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(smallLogo, padding, 50, 40, 40);
+                ctx.restore();
+                headerX = padding + 50;
+            } else {
+                drawVectorLogo(ctx, padding, 50, 40);
+                headerX = padding + 50;
+            }
+
+            ctx.fillStyle = theme.textMain;
+            ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.direction = 'ltr';
+            ctx.fillText('IntuMedix Notes', headerX, 50 + 15);
+
+            ctx.fillStyle = theme.textSec;
+            ctx.font = '13px system-ui, -apple-system, sans-serif';
+            ctx.fillText('Personal Study Notes & Insights', headerX, 50 + 34);
+
+            // Draw Question Panel
+            if (includeQuestion) {
+                ctx.save();
+                ctx.fillStyle = theme.questionBg;
+                ctx.strokeStyle = theme.questionBorder;
+                ctx.lineWidth = 1;
+
+                const rx = padding;
+                const ry = questionYStart;
+                const rw = contentWidth;
+                const rh = questionBlockHeight;
+                const radius = 10;
+
+                ctx.beginPath();
+                ctx.moveTo(rx + radius, ry);
+                ctx.lineTo(rx + rw - radius, ry);
+                ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + radius);
+                ctx.lineTo(rx + rw, ry + rh - radius);
+                ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - radius, ry + rh);
+                ctx.lineTo(rx + radius, ry + rh);
+                ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - radius);
+                ctx.lineTo(rx, ry + radius);
+                ctx.quadraticCurveTo(rx, ry, rx + radius, ry);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+
+                // Draw left indicator
+                ctx.fillStyle = theme.accentLine;
+                ctx.fillRect(padding + 10, questionYStart + 15, 4, questionBlockHeight - 30);
+
+                ctx.fillStyle = theme.accentLine;
+                ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.direction = 'ltr';
+                ctx.fillText('QUESTION & OPTIONS', padding + 25, questionYStart + 22);
+
+                ctx.fillStyle = theme.textMain;
+                ctx.font = '14.5px system-ui, -apple-system, sans-serif';
+                let qY = drawTextBlock(ctx, questionText, padding + 25, canvasWidth - padding - 25, questionYStart + 45, contentWidth - 50, 24, true);
+
+                ctx.fillStyle = theme.textSec;
+                ctx.font = '12px system-ui, -apple-system, sans-serif';
+                qY += 5;
+                for (let choice of choicesList) {
+                    qY = drawTextBlock(ctx, choice, padding + 25, canvasWidth - padding - 25, qY, contentWidth - 50, 21, true);
+                }
+            }
+
+            // Draw Notes Title
+            ctx.fillStyle = theme.notesTitle;
+            ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.direction = 'rtl';
+            ctx.fillText('📝 الملاحظات الشخصية', canvasWidth - padding, titleYPos);
+
+            // Draw Notes Text
+            ctx.fillStyle = theme.textMain;
+            ctx.font = 'bold 19.5px system-ui, -apple-system, sans-serif';
+            drawTextBlock(ctx, notesParas, padding, canvasWidth - padding, notesYStart, contentWidth, 34, true);
+
+            // Draw Footer
+            const footerY = totalHeight - 35;
+            ctx.fillStyle = theme.border;
+            ctx.fillRect(padding, footerY - 20, contentWidth, 1);
+
+            // Draw Telegram Icon next to the channel link
+            drawTelegramIcon(ctx, padding, footerY - 1, 15);
+
+            ctx.fillStyle = theme.textSec;
+            ctx.font = '12px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.direction = 'ltr';
+            ctx.fillText('t.me/IntuMedix', padding + 20, footerY + 10);
+
+            ctx.textAlign = 'right';
+            ctx.direction = 'rtl';
+            ctx.fillText('دراسة ذكية • Smart Study', canvasWidth - padding, footerY + 10);
+
+            // Set image preview src
+            const dataUrl = canvas.toDataURL('image/png');
+            const imgPreview = document.getElementById('exportImagePreview');
+            if (imgPreview) {
+                imgPreview.src = dataUrl;
+            }
+        };
+
+        function getExportFileName() {
+            const rawTagsEl = document.getElementById('rawTags');
+            let tagsText = rawTagsEl ? rawTagsEl.textContent.trim() : '';
+            let cleanTag = tagsText.replace(/::/g, '_').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF\-]/g, '');
+            if (!cleanTag) {
+                cleanTag = 'IntuMedix';
+            }
+
+            const deckEl = document.getElementById('rawDeckName');
+            let deckText = deckEl ? deckEl.textContent.trim() : '';
+            let directDeck = '';
+            if (deckText) {
+                const parts = deckText.split('::');
+                directDeck = parts[parts.length - 1];
+            }
+            directDeck = directDeck.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF\-]/g, '');
+
+            const metaEl = document.getElementById('qmetaInner');
+            let metaText = metaEl ? metaEl.textContent.trim() : '';
+            let cleanMeta = metaText.replace(/\|/g, '_').replace(/[:\s]+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF\-]/g, '');
+
+            let finalName = '';
+            if (directDeck) finalName += directDeck + '_';
+            finalName += cleanTag;
+            if (cleanMeta) finalName += '_' + cleanMeta;
+            else finalName += '_Note';
+
+            return finalName;
+        }
+
+        window.downloadExportedImage = async function () {
+            const canvas = document.getElementById('exportCanvas');
+            if (!canvas) return;
+
+            const fileName = getExportFileName();
+
+            let isDesktop = false;
+            try { isDesktop = (typeof pycmd !== 'undefined'); } catch(e){}
+
+            if (isDesktop) {
+                try {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    pycmd("saveImage:" + fileName + "," + dataUrl);
+                } catch (err) {
+                    console.warn("Canvas is tainted, fallback to safe mode export:", err);
+                    await window.updateExportPreview(true);
+                    try {
+                        const dataUrl = canvas.toDataURL('image/png');
+                        pycmd("saveImage:" + fileName + "," + dataUrl);
+                    } catch (err2) {
+                        console.error("Safe mode export also failed:", err2);
+                        alert("تعذر تصدير الصورة بسبب قيود الحماية في أنكي. يمكنك تصوير الشاشة أو نسخ الملاحظات يدوياً.");
+                    }
+                }
+            } else {
+                // Mobile Save Fallback popup
+                try {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    let mobileModal = document.getElementById('mobileSaveModal');
+                    if (!mobileModal) {
+                        mobileModal = document.createElement('div');
+                        mobileModal.id = 'mobileSaveModal';
+                        mobileModal.className = 'im-modal-overlay';
+                        mobileModal.style.zIndex = '99999';
+                        mobileModal.onclick = function(e) {
+                            if (e.target === this) this.style.display = 'none';
+                        };
+                        mobileModal.innerHTML = `
+                            <div class="im-modal-box" style="max-width: 90%; text-align: center; background: #ffffff; border-radius: 12px; padding: 20px;">
+                                <button class="im-modal-close" onclick="document.getElementById('mobileSaveModal').style.display='none'">×</button>
+                                <div class="im-modal-title notes-modal-title" style="color:#0ea5e9; font-size: 18px; margin-bottom: 8px;">📱 حفظ الصورة على الهاتف</div>
+                                <p style="font-size: 13px; color: #64748b; margin-bottom: 15px; direction: rtl;">اضغط مطولاً على الصورة أدناه ثم اختر <b>"حفظ الصورة" (Save Image)</b></p>
+                                <img id="mobileSaveImg" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto;" />
+                            </div>
+                        `;
+                        document.body.appendChild(mobileModal);
+                    }
+                    document.getElementById('mobileSaveImg').src = dataUrl;
+                    mobileModal.style.display = 'flex';
+                } catch (e) {
+                    alert("عذراً، لا يمكن حفظ الصورة على هذا الجهاز.");
+                }
+            }
+        };
+
+        window.goBackToEditor = function() {
+            closeExportPopup();
+            openNotesPopup();
+        };
+
+        window.shareNotesAsText = async function () {
+            const ta = document.getElementById('notesTextarea');
+            let notesText = ta ? stripHtml(ta.innerHTML) : '';
+            if (!notesText) {
+                const displayText = document.getElementById('personalNotesDisplayText');
+                notesText = displayText ? stripHtml(displayText.innerHTML) : '';
+            }
+
+            if (!notesText) {
+                alert("لا توجد ملاحظات لمشاركتها!");
+                return;
+            }
+
+            const rawTagsEl = document.getElementById('rawTags');
+            let tagsText = rawTagsEl ? rawTagsEl.textContent.trim() : '';
+            let cleanTag = tagsText.replace(/::/g, ' ➔ ').replace(/\s+/g, ', ');
+
+            const metaEl = document.getElementById('qmetaInner');
+            let metaText = metaEl ? metaEl.textContent.trim() : '';
+
+            let shareText = `🧠 *IntuMedix Notes*\n`;
+            if (cleanTag) {
+                shareText += `📌 القسم: ${cleanTag}\n`;
+            }
+            if (metaText) {
+                shareText += `📖 السؤال: ${metaText}\n`;
+            }
+            shareText += `\n📝 *ملاحظاتي الشخصية*:\n${notesText}\n\n`;
+            shareText += `💡 دراسة ذكية • Smart Study\n`;
+            shareText += `📢 t.me/IntuMedix`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'IntuMedix Notes',
+                        text: shareText
+                    });
+                    return;
+                } catch (err) {
+                    console.log("Native share cancelled or failed:", err);
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(shareText);
+                alert("📋 تم نسخ الملاحظات مع الهوية بنجاح! يمكنك الآن لصقها ومشاركتها في تليجرام أو أي تطبيق آخر.");
+            } catch (err) {
+                console.error("Clipboard copy failed:", err);
+                alert("فشل النسخ تلقائياً. يمكنك نسخ النص يدوياً.");
+            }
+        };
+    })();
+</script>

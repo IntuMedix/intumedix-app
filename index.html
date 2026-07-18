@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="description" content="IntuMedix - تطبيق البطاقات الطبية الذكي المتوافق مع Anki" />
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/_IntuMedix_logo.png" />
+    
+    <!-- iOS PWA meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="IntuMedix" />
+    
+    <!-- Splash colors -->
+    <meta name="msapplication-TileColor" content="#6366f1" />
+    
+    <title>IntuMedix</title>
+    <link rel="icon" type="image/png" href="/_IntuMedix_logo.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Load sql.js before React app -->
+    <script src="/sql-wasm.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
