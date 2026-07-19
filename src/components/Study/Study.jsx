@@ -10,8 +10,21 @@ import _imBack  from '../../templates/im_back.html?raw';
 import _imCss   from '../../templates/im_style.css?raw';
 
 // ─── Detect IntuMedix MCQ cards ───────────────────────────────
-function isIntuMedixMCQ(fields) {
-  return 'Question_Stem' in fields || 'answer_A' in fields || 'Correct_Answer' in fields;
+function isIntuMedixMCQ(card) {
+  const fields = card.fields || {};
+  const noteTypeName = (card.note_type_name || '').toLowerCase();
+  
+  if (noteTypeName.includes('intumedix') || noteTypeName.includes('mcq')) {
+    return true;
+  }
+  
+  const keys = Object.keys(fields).map(k => k.toLowerCase().replace(/[\s_-]/g, ''));
+  return keys.some(k => 
+    k === 'questionstem' || 
+    k === 'answera' || 
+    k === 'correctanswer' || 
+    k === 'intumedixnotes'
+  );
 }
 
 // ─── Anki Template Renderer ───────────────────────────────────
@@ -26,19 +39,28 @@ function renderAnkiTemplate(template, fields, frontHtml = '') {
   // Repeat a few times to handle nested blocks
   for (let pass = 0; pass < 4; pass++) {
     html = html.replace(/\{\{#([\w][\w\s]*?)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, fieldName, content) => {
-      const val = fields[fieldName];
+      // Case-insensitive check
+      const lowerName = fieldName.toLowerCase().replace(/[\s_-]/g, '');
+      const foundKey = Object.keys(fields).find(k => k.toLowerCase().replace(/[\s_-]/g, '') === lowerName);
+      const val = foundKey ? fields[foundKey] : null;
       return (val && String(val).trim()) ? content : '';
     });
     // Negation blocks: {{^Field}}...{{/Field}}
     html = html.replace(/\{\{\^([\w][\w\s]*?)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, fieldName, content) => {
-      const val = fields[fieldName];
+      // Case-insensitive check
+      const lowerName = fieldName.toLowerCase().replace(/[\s_-]/g, '');
+      const foundKey = Object.keys(fields).find(k => k.toLowerCase().replace(/[\s_-]/g, '') === lowerName);
+      const val = foundKey ? fields[foundKey] : null;
       return (!val || !String(val).trim()) ? content : '';
     });
   }
 
   // Cloze: {{cloze:Field}}
   html = html.replace(/\{\{cloze:([\w][\w\s]*?)\}\}/g, (_, fieldName) => {
-    const val = fields[fieldName] || '';
+    // Case-insensitive check
+    const lowerName = fieldName.toLowerCase().replace(/[\s_-]/g, '');
+    const foundKey = Object.keys(fields).find(k => k.toLowerCase().replace(/[\s_-]/g, '') === lowerName);
+    const val = foundKey ? fields[foundKey] : '';
     return val.replace(/\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}/g, (__, n, answer) =>
       `<span class="cloze" data-cloze="${n}">${answer}</span>`
     );
@@ -47,7 +69,14 @@ function renderAnkiTemplate(template, fields, frontHtml = '') {
   // Simple field substitution: {{FieldName}}
   html = html.replace(/\{\{([\w][\w\s]*?)\}\}/g, (match, fieldName) => {
     if (fieldName === 'Tags' || fieldName === 'Deck' || fieldName === 'CardFlag') return match;
-    return fieldName in fields ? (fields[fieldName] || '') : '';
+    if (fieldName in fields) return fields[fieldName] || '';
+    
+    // Case-insensitive lookup fallback
+    const lowerName = fieldName.toLowerCase().replace(/[\s_-]/g, '');
+    const foundKey = Object.keys(fields).find(k => k.toLowerCase().replace(/[\s_-]/g, '') === lowerName);
+    if (foundKey) return fields[foundKey] || '';
+    
+    return '';
   });
 
   return html;
@@ -171,7 +200,7 @@ export default function Study() {
 
     const fields = card.fields || {};
     // Templates are always available (bundled in JS)
-    const useIM = isIntuMedixMCQ(fields);
+    const useIM = isIntuMedixMCQ(card);
 
     let frontDoc, backDoc;
 

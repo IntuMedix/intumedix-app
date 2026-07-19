@@ -115,7 +115,71 @@ export async function parseAndImportApkg(apkgFile, onProgress = () => {}) {
       try { modelsJson = JSON.parse(modelsRaw || '{}'); } catch(e) {}
     }
   } catch(e) {
-    throw new Error('فشل قراءة بيانات الحزم: ' + e.message);
+    // If table col doesn't have these columns, we'll try tables below
+  }
+
+  // Fallback for modern Anki SQLite schema (separate tables for decks, notetypes, fields, templates)
+  if (Object.keys(modelsJson).length === 0 || Object.keys(decksJson).length === 0) {
+    try {
+      const hasNoteTypesTable = ankiDb.exec(`SELECT name FROM sqlite_master WHERE type='table' AND name='notetypes'`);
+      if (hasNoteTypesTable.length > 0) {
+        const ntResult = ankiDb.exec(`SELECT id, name, config FROM notetypes`);
+        if (ntResult.length > 0) {
+          ntResult[0].values.forEach(([id, name, config]) => {
+            let parsedConfig = {};
+            if (typeof config === 'string') {
+              try { parsedConfig = JSON.parse(config); } catch(e) {}
+            }
+            
+            // Query fields table
+            let flds = [];
+            try {
+              const fieldsResult = ankiDb.exec(`SELECT name, ord FROM fields WHERE ntid = ? ORDER BY ord`, [id]);
+              if (fieldsResult.length > 0) {
+                flds = fieldsResult[0].values.map(([fname, ford]) => ({ name: fname, ord: ford }));
+              }
+            } catch(e) {}
+            if (flds.length === 0) flds = parsedConfig.flds || [];
+
+            // Query templates table
+            let tmpls = [];
+            try {
+              const tmplsResult = ankiDb.exec(`SELECT name, ord, qfmt, afmt FROM templates WHERE ntid = ? ORDER BY ord`, [id]);
+              if (tmplsResult.length > 0) {
+                tmpls = tmplsResult[0].values.map(([tname, tord, tqfmt, tafmt]) => ({
+                  name: tname, ord: tord, qfmt: tqfmt, afmt: tafmt
+                }));
+              }
+            } catch(e) {}
+            if (tmpls.length === 0) tmpls = parsedConfig.tmpls || [];
+
+            modelsJson[String(id)] = {
+              id,
+              name,
+              flds,
+              tmpls,
+              css: parsedConfig.css || '',
+            };
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to parse modern notetypes/fields/templates:", e);
+    }
+
+    try {
+      const hasDecksTable = ankiDb.exec(`SELECT name FROM sqlite_master WHERE type='table' AND name='decks'`);
+      if (hasDecksTable.length > 0) {
+        const dkResult = ankiDb.exec(`SELECT id, name FROM decks`);
+        if (dkResult.length > 0) {
+          dkResult[0].values.forEach(([id, name]) => {
+            decksJson[String(id)] = { id, name };
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to parse modern decks table:", e);
+    }
   }
 
   // ── 5. Build deck map: ankiId → name ────────────────────────
