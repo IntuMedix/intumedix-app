@@ -195,3 +195,16 @@ export function createNewCard(noteId, deckId) {
     lapses: 0,
   };
 }
+
+/**
+ * Get a human-readable label for the next review after a given rating.
+ * Used by Study.jsx to show on rating buttons (e.g. "3 أيام").
+ */
+export function getNextReview(card, rating, now = new Date()) {
+  try {
+    const scheduled = scheduleCard(card, rating, now);
+    return formatInterval(scheduled.scheduledDays, scheduled.dueDate, now);
+  } catch (e) {
+    return '';
+  }
+}
