@@ -9,14 +9,15 @@ export default function Settings() {
     language: 'ar',
   });
   const [saved, setSaved] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     try {
       setSettings({
-        newPerDay: getSetting('new_per_day', '20'),
-        dailyLimit: getSetting('daily_limit', '100'),
-        theme: getSetting('theme', 'dark'),
-        language: getSetting('language', 'ar'),
+        newPerDay: getSetting('new_per_day') || '20',
+        dailyLimit: getSetting('daily_limit') || '100',
+        theme: getSetting('theme') || 'dark',
+        language: getSetting('language') || 'ar',
       });
     } catch (e) {}
   }, []);
@@ -31,13 +32,13 @@ export default function Settings() {
   };
 
   const exportAllData = () => {
-    const data = localStorage.getItem('intumedix_db');
+    const data = localStorage.getItem('intumedix_db_v2');
     if (!data) return alert('لا توجد بيانات');
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `intumedix_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `intumedix_backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -48,7 +49,7 @@ export default function Settings() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (confirm('سيتم استبدال جميع البيانات الحالية. هل تريد المتابعة؟')) {
-        localStorage.setItem('intumedix_db', ev.target.result);
+        localStorage.setItem('intumedix_db_v2', ev.target.result);
         window.location.reload();
       }
     };
@@ -58,8 +59,25 @@ export default function Settings() {
   const clearAllData = () => {
     if (confirm('تحذير: سيتم حذف جميع البيانات نهائياً! هل أنت متأكد؟')) {
       localStorage.clear();
+      indexedDB.deleteDatabase('intumedix_media');
       window.location.reload();
     }
+  };
+
+  // Force update: clears SW cache so latest version loads
+  const forceUpdate = async () => {
+    setUpdating(true);
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) await reg.unregister();
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        for (const key of keys) await caches.delete(key);
+      }
+    } catch (e) {}
+    window.location.reload(true);
   };
 
   return (
@@ -95,9 +113,9 @@ export default function Settings() {
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 16 }}>ℹ️ عن التطبيق</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, color: 'var(--color-text-sec)' }}>
-          <div>الإصدار: <span style={{ color: 'var(--color-primary-h)' }}>v1.0.0</span></div>
+          <div>الإصدار: <span style={{ color: 'var(--color-primary-h)' }}>v1.1.0</span></div>
           <div>الخوارزمية: <span style={{ color: 'var(--color-primary-h)' }}>FSRS v5</span></div>
-          <div>القوالب: <span style={{ color: 'var(--color-primary-h)' }}>IntuMedix Templates</span></div>
+          <div>قوالب البطاقات: <span style={{ color: 'var(--color-primary-h)' }}>Anki-Compatible</span></div>
           <div>التوافق: <span style={{ color: 'var(--color-primary-h)' }}>Anki .apkg</span></div>
           <div style={{ marginTop: 8, padding: '12px', background: 'var(--color-surface2)', borderRadius: 'var(--radius-md)' }}>
             🔗 <a href="https://t.me/IntuMedix" target="_blank" rel="noreferrer"
@@ -110,33 +128,35 @@ export default function Settings() {
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 16 }}>💾 البيانات والنسخ الاحتياطي</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ fontWeight: 500, marginBottom: 4 }}>تصدير النسخة الاحتياطية</div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-sec)' }}>حفظ كامل بيانات التطبيق كملف JSON</div>
-            </div>
-            <button className="btn btn-cyan btn-sm" onClick={exportAllData}>⬇️ تصدير</button>
-          </div>
-          <hr style={{ border: 'none', borderTop: '1px solid var(--color-border2)' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ fontWeight: 500, marginBottom: 4 }}>استيراد نسخة احتياطية</div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-sec)' }}>استعادة بيانات محفوظة مسبقاً</div>
-            </div>
+          <SettingRow label="تصدير النسخة الاحتياطية" desc="حفظ كامل بيانات التطبيق كملف JSON">
+            <button className="btn btn-ghost btn-sm" onClick={exportAllData}>⬇ تصدير</button>
+          </SettingRow>
+          <SettingRow label="استيراد نسخة احتياطية" desc="استعادة بيانات محفوظة مسبقاً">
             <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer' }}>
-              ⬆️ استيراد
+              ⬆ استيراد
               <input type="file" accept=".json" style={{ display: 'none' }} onChange={importData} />
             </label>
-          </div>
-          <hr style={{ border: 'none', borderTop: '1px solid var(--color-border2)' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ fontWeight: 500, marginBottom: 4, color: 'var(--color-danger)' }}>حذف جميع البيانات</div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-sec)' }}>لا يمكن التراجع عن هذا الإجراء</div>
-            </div>
-            <button className="btn btn-danger btn-sm" onClick={clearAllData}>🗑️ حذف الكل</button>
-          </div>
+          </SettingRow>
+          <SettingRow label="حذف جميع البيانات" desc="حذف كل البطاقات والحزم — لا يمكن التراجع">
+            <button className="btn btn-danger btn-sm" onClick={clearAllData}>🗑 حذف الكل</button>
+          </SettingRow>
         </div>
+      </div>
+
+      {/* Force Update */}
+      <div className="card" style={{ marginBottom: 20, border: '1px solid var(--color-border)' }}>
+        <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8 }}>🔄 تحديث التطبيق</div>
+        <p style={{ fontSize: 13, color: 'var(--color-text-sec)', marginBottom: 16 }}>
+          إذا كان التطبيق يعرض نسخة قديمة، اضغط هنا لمسح الكاش وتحميل أحدث إصدار.
+        </p>
+        <button
+          className="btn btn-primary"
+          onClick={forceUpdate}
+          disabled={updating}
+          style={{ minWidth: 180 }}
+        >
+          {updating ? '⏳ جاري التحديث...' : '🔄 تحديث إجباري'}
+        </button>
       </div>
 
       {/* Save Button */}
@@ -149,7 +169,10 @@ export default function Settings() {
 
 function SettingRow({ label, desc, children }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--color-border2)', gap: 16, flexWrap: 'wrap' }}>
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '12px 0', borderBottom: '1px solid var(--color-border)', gap: 16, flexWrap: 'wrap',
+    }}>
       <div style={{ flex: 1 }}>
         <div style={{ fontWeight: 500, fontSize: 14 }}>{label}</div>
         {desc && <div style={{ fontSize: 12, color: 'var(--color-text-sec)', marginTop: 2 }}>{desc}</div>}

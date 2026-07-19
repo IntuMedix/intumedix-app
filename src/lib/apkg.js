@@ -148,8 +148,12 @@ export async function parseAndImportApkg(apkgFile, onProgress = () => {}) {
   for (const [ankiId, name] of Object.entries(deckNameMap)) {
     deckIdMap[ankiId] = createDeck(name, 'مستورد من Anki', ankiId);
   }
-  // Fallback deck if a card doesn't match a known deck
-  const fallbackDeckId = createDeck('Imported', 'مستورد من Anki');
+  // Fallback deck created lazily only if needed
+  let fallbackDeckId = null;
+  function getFallbackDeckId() {
+    if (!fallbackDeckId) fallbackDeckId = createDeck('Imported', 'مستورد من Anki');
+    return fallbackDeckId;
+  }
 
   onProgress(30);
 
@@ -200,7 +204,7 @@ export async function parseAndImportApkg(apkgFile, onProgress = () => {}) {
     const noteInfo = noteInfoMap[String(nid)];
     if (!noteInfo) continue;
 
-    const deckId = deckIdMap[String(did)] || fallbackDeckId;
+    const deckId = deckIdMap[String(did)] || getFallbackDeckId();
     const deckName = deckNameMap[String(did)] || 'Imported';
     const noteTypeId = noteTypeIdMap[noteInfo.mid] || null;
 
