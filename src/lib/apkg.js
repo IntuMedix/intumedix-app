@@ -47,7 +47,7 @@ export async function parseApkg(apkgFile) {
   }
 
   // ── Read collection info ──
-  const colResult = ankiDb.exec(`SELECT decks, models, flds FROM col LIMIT 1`);
+  const colResult = ankiDb.exec(`SELECT decks, models FROM col LIMIT 1`);
   let decksJson = {}, modelsJson = {};
   if (colResult.length > 0) {
     const row = colResult[0].values[0];
