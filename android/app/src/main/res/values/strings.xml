@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IntuMedix</string>
+    <string name="title_activity_main">IntuMedix</string>
+    <string name="package_name">com.intumedix.app</string>
+    <string name="custom_url_scheme">com.intumedix.app</string>
+</resources>

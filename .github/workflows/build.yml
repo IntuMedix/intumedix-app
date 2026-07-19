@@ -42,7 +42,7 @@ jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
-    needs: build-web
+    continue-on-error: true  # Don't block website deployment if Android fails
     steps:
       - uses: actions/checkout@v4
 
