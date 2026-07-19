@@ -36,13 +36,18 @@ export default defineConfig({
         screenshots: [],
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'], // Exclude PNG from precache (too large)
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
             options: { cacheName: 'google-fonts-cache', expiration: { maxAgeSeconds: 60 * 60 * 24 * 365 } }
+          },
+          {
+            urlPattern: /\.png$/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'images-cache', expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 30 } }
           }
         ]
       }
