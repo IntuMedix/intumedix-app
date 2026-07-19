@@ -1,154 +1,133 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDecks, getDueCards, updateCard, logReview } from '../../lib/db';
-import { getMedia } from '../../lib/db';
+import { getDecks, getDueCards, updateCard, logReview, getMedia } from '../../lib/db';
 import { scheduleCard, getNextReview } from '../../lib/fsrs';
 
-// ─── Anki Template Renderer ──────────────────────────────────
-/**
- * Renders an Anki template by substituting {{FieldName}} with actual values.
- * Supports:
- *   {{FieldName}}         — basic substitution
- *   {{FrontSide}}         — inserts rendered front HTML (back template only)
- *   {{#FieldName}}...{{/FieldName}}  — conditional blocks
- *   {{^FieldName}}...{{/FieldName}}  — negation blocks
- *   {{cloze:FieldName}}   — cloze (simplified)
- */
+// ─── Template cache (loaded once) ────────────────────────────
+let _imFront = null, _imBack = null, _imCss = null;
+const _tmplPromise = (async () => {
+  try {
+    const base = import.meta.env.BASE_URL || '/';
+    const [fr, bk, cs] = await Promise.all([
+      fetch(`${base}im_front.html`).then(r => r.ok ? r.text() : null).catch(() => null),
+      fetch(`${base}im_back.html`).then(r => r.ok ? r.text() : null).catch(() => null),
+      fetch(`${base}im_style.css`).then(r => r.ok ? r.text() : null).catch(() => null),
+    ]);
+    _imFront = fr; _imBack = bk; _imCss = cs;
+  } catch(e) { /* templates unavailable, will use inline fallback */ }
+})();
+
+// ─── Detect IntuMedix MCQ cards ───────────────────────────────
+function isIntuMedixMCQ(fields) {
+  return 'Question_Stem' in fields || 'answer_A' in fields || 'Correct_Answer' in fields;
+}
+
+// ─── Anki Template Renderer ───────────────────────────────────
 function renderAnkiTemplate(template, fields, frontHtml = '') {
   if (!template) return '';
   let html = template;
 
-  // Replace {{FrontSide}}
+  // {{FrontSide}}
   html = html.replace(/\{\{FrontSide\}\}/g, frontHtml);
 
-  // Replace conditional blocks {{#Field}}...{{/Field}}
-  html = html.replace(/\{\{#(\w[\w\s]*?)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, fieldName, content) => {
-    const val = fields[fieldName];
-    return (val && val.trim()) ? content : '';
-  });
+  // Conditional blocks: {{#Field}}...{{/Field}}
+  // Repeat a few times to handle nested blocks
+  for (let pass = 0; pass < 4; pass++) {
+    html = html.replace(/\{\{#([\w][\w\s]*?)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, fieldName, content) => {
+      const val = fields[fieldName];
+      return (val && String(val).trim()) ? content : '';
+    });
+    // Negation blocks: {{^Field}}...{{/Field}}
+    html = html.replace(/\{\{\^([\w][\w\s]*?)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, fieldName, content) => {
+      const val = fields[fieldName];
+      return (!val || !String(val).trim()) ? content : '';
+    });
+  }
 
-  // Replace negation blocks {{^Field}}...{{/Field}}
-  html = html.replace(/\{\{\^(\w[\w\s]*?)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, fieldName, content) => {
-    const val = fields[fieldName];
-    return (!val || !val.trim()) ? content : '';
-  });
-
-  // Replace cloze {{cloze:Field}}
-  html = html.replace(/\{\{cloze:(\w[\w\s]*?)\}\}/g, (_, fieldName) => {
+  // Cloze: {{cloze:Field}}
+  html = html.replace(/\{\{cloze:([\w][\w\s]*?)\}\}/g, (_, fieldName) => {
     const val = fields[fieldName] || '';
-    // Reveal all cloze deletions
-    return val.replace(/\{\{c\d+::(.*?)(?:::(.*?))?\}\}/g, (__, answer) => `<span class="cloze">${answer}</span>`);
+    return val.replace(/\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}/g, (__, n, answer) =>
+      `<span class="cloze" data-cloze="${n}">${answer}</span>`
+    );
   });
 
-  // Replace all remaining {{FieldName}}
-  html = html.replace(/\{\{(\w[\w\s]*?)\}\}/g, (match, fieldName) => {
-    if (fieldName in fields) return fields[fieldName] || '';
-    return ''; // Empty for unknown fields
+  // Simple field substitution: {{FieldName}}
+  html = html.replace(/\{\{([\w][\w\s]*?)\}\}/g, (match, fieldName) => {
+    if (fieldName === 'Tags' || fieldName === 'Deck' || fieldName === 'CardFlag') return match;
+    return fieldName in fields ? (fields[fieldName] || '') : '';
   });
 
   return html;
 }
 
-/**
- * Resolve media references in HTML (e.g. <img src="image.png">) 
- * by replacing filenames with IndexedDB data URIs
- */
+// ─── Resolve media references → IndexedDB ────────────────────
 async function resolveMediaInHtml(html, mediaCache) {
   if (!html) return html;
-  
-  // Find all src="filename" and src='filename' references
-  const promises = [];
   const refs = new Set();
-  
-  // Collect all media references
   const imgRegex = /src=["']([^"'<>]+)["']/g;
+  const soundRegex = /\[sound:([^\]]+)\]/g;
   let m;
   while ((m = imgRegex.exec(html)) !== null) {
-    const filename = m[1];
-    if (!filename.startsWith('data:') && !filename.startsWith('http') && !filename.startsWith('/')) {
-      refs.add(filename);
-    }
+    const f = m[1];
+    if (!f.startsWith('data:') && !f.startsWith('http') && !f.startsWith('/')) refs.add(f);
   }
-  
-  // Also handle [sound:filename]
-  const soundRegex = /\[sound:([^\]]+)\]/g;
-  while ((m = soundRegex.exec(html)) !== null) {
-    refs.add(m[1]);
-  }
+  while ((m = soundRegex.exec(html)) !== null) refs.add(m[1]);
 
-  // Load from IndexedDB (use cache to avoid repeated lookups)
   for (const filename of refs) {
     if (!mediaCache.has(filename)) {
-      const data = await getMedia(filename);
+      const data = await getMedia(filename).catch(() => null);
       mediaCache.set(filename, data);
     }
   }
 
-  // Replace references in HTML
   let resolved = html;
   for (const filename of refs) {
-    const dataUri = mediaCache.get(filename);
-    if (dataUri) {
-      // Replace src="filename"
-      resolved = resolved.replace(
-        new RegExp(`src=["']${filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'g'),
-        `src="${dataUri}"`
-      );
-      // Replace [sound:filename] with audio element
-      resolved = resolved.replace(
-        new RegExp(`\\[sound:${filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]`, 'g'),
-        `<audio controls autoplay><source src="${dataUri}"></audio>`
-      );
+    const uri = mediaCache.get(filename);
+    if (uri) {
+      const escaped = filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      resolved = resolved
+        .replace(new RegExp(`src=["']${escaped}["']`, 'g'), `src="${uri}"`)
+        .replace(new RegExp(`\\[sound:${escaped}\\]`, 'g'),
+          `<audio controls autoplay><source src="${uri}"></audio>`);
     }
   }
-
   return resolved;
 }
 
-/**
- * Build a complete HTML document for rendering in an iframe
- */
-function buildCardDocument(bodyHtml, css) {
+// ─── Build full HTML document for iframe ─────────────────────
+function buildCardDocument(bodyHtml, css, isIntuMedix = false) {
+  const baseCss = isIntuMedix ? '' : `
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: auto; background: #0d1117; }
+    .card {
+      font-family: Arial, 'Noto Sans Arabic', sans-serif;
+      font-size: 20px; text-align: center; color: #e0e0e0;
+      padding: 20px; min-height: 100%;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+    }
+    img { max-width: 100%; height: auto; border-radius: 8px; }
+    audio { width: 100%; margin: 8px 0; }
+    hr { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 16px 0; width: 100%; }
+    .cloze { color: #60a5fa; font-weight: bold; }
+    b, strong { color: #93c5fd; }
+  `;
+
   return `<!DOCTYPE html>
 <html dir="auto">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { 
-    height: 100%; 
-    overflow: auto;
-    background: transparent;
-  }
-  .card {
-    font-family: Arial, 'Noto Sans Arabic', sans-serif;
-    font-size: 20px;
-    text-align: center;
-    color: #e0e0e0;
-    padding: 20px;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  img { max-width: 100%; height: auto; border-radius: 8px; }
-  audio { width: 100%; margin: 8px 0; }
-  hr { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 16px 0; width: 100%; }
-  .cloze { color: #60a5fa; font-weight: bold; }
-  b, strong { color: #93c5fd; }
-  
-  /* Anki highlight colors */
-  .nightMode .card { color: #e0e0e0; background: transparent; }
-  
-  ${css || ''}
+${baseCss}
+${css || ''}
 </style>
 </head>
-<body class="nightMode">
-<div class="card">
+<body${isIntuMedix ? '' : ' class="nightMode"'}>
+${isIntuMedix ? '' : '<div class="card">'}
 ${bodyHtml}
-</div>
+${isIntuMedix ? '' : '</div>'}
 </body>
 </html>`;
 }
@@ -175,49 +154,72 @@ export default function Study() {
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [tmplReady, setTmplReady] = useState(false);
   const mediaCache = useRef(new Map());
   const frontFrameRef = useRef();
   const backFrameRef = useRef();
 
+  // Wait for templates to load
+  useEffect(() => {
+    _tmplPromise.then(() => setTmplReady(true));
+  }, []);
+
   // Load deck and due cards
   useEffect(() => {
     if (!deckId) {
-      // If no deck, show all due cards
       const decks = getDecks();
       if (decks.length > 0) navigate(`/study/${decks[0].id}`);
       else { setDone(true); setLoading(false); }
       return;
     }
-
     const cards = getDueCards(parseInt(deckId));
     setQueue(cards);
     setLoading(false);
-
     if (cards.length === 0) { setDone(true); return; }
     loadCard(cards[0]);
-  }, [deckId]);
+  }, [deckId, tmplReady]);
 
   const loadCard = useCallback(async (card) => {
     setCurrent(card);
     setShowBack(false);
 
-    // Determine templates
-    const qfmt = card.template_front || `{{${Object.keys(card.fields)[0] || 'Front'}}}`;
-    const afmt = card.template_back  || `{{FrontSide}}<hr>{{${Object.keys(card.fields)[1] || 'Back'}}}`;
-    const css  = card.css || '';
+    const fields = card.fields || {};
+    const useIM = isIntuMedixMCQ(fields) && _imFront && _imBack;
 
-    // Render front
-    const rawFront = renderAnkiTemplate(qfmt, card.fields, '');
-    const resolvedFront = await resolveMediaInHtml(rawFront, mediaCache.current);
-    const frontDoc = buildCardDocument(resolvedFront, css);
+    let frontDoc, backDoc;
+
+    if (useIM) {
+      // ── IntuMedix MCQ rendering ──
+      const css = _imCss || '';
+
+      // Substitute fields in front template
+      const rawFront = renderAnkiTemplate(_imFront, fields, '');
+      const resolvedFront = await resolveMediaInHtml(rawFront, mediaCache.current);
+      frontDoc = buildCardDocument(resolvedFront, css, true);
+
+      // Back template: {{FrontSide}} is replaced with just the question stem section
+      // to avoid double header; use full back template with field substitution
+      const rawBack = renderAnkiTemplate(_imBack, fields, resolvedFront);
+      const resolvedBack = await resolveMediaInHtml(rawBack, mediaCache.current);
+      backDoc = buildCardDocument(resolvedBack, css, true);
+    } else {
+      // ── Generic card rendering (Anki template from DB) ──
+      const qfmt = card.template_front || `{{${Object.keys(fields)[0] || 'Front'}}}`;
+      const afmt = card.template_back  || `{{FrontSide}}<hr>{{${Object.keys(fields)[1] || 'Back'}}}`;
+      const css  = card.css || '';
+
+      const rawFront = renderAnkiTemplate(qfmt, fields, '');
+      const resolvedFront = await resolveMediaInHtml(rawFront, mediaCache.current);
+      frontDoc = buildCardDocument(resolvedFront, css);
+
+      const rawBack = renderAnkiTemplate(afmt, fields, resolvedFront);
+      const resolvedBack = await resolveMediaInHtml(rawBack, mediaCache.current);
+      backDoc = buildCardDocument(resolvedBack, css);
+    }
+
     setFrontHtml(frontDoc);
-
-    // Render back (with FrontSide = rendered front)
-    const rawBack = renderAnkiTemplate(afmt, card.fields, resolvedFront);
-    const resolvedBack = await resolveMediaInHtml(rawBack, mediaCache.current);
-    const backDoc = buildCardDocument(resolvedBack, css);
     setBackHtml(backDoc);
-  }, []);
+  }, [tmplReady]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -225,6 +227,7 @@ export default function Study() {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.code === 'Space' || e.code === 'Enter') {
         if (!showBack) setShowBack(true);
+        e.preventDefault();
       }
       if (showBack) {
         if (e.key === '1') rate(1);
@@ -248,27 +251,25 @@ export default function Study() {
 
     const scheduled = scheduleCard(current, rating);
     updateCard(scheduled);
-    logReview(current.id, rating, statsBefore.state, statsBefore.stability, statsBefore.difficulty, scheduled.scheduledDays, 0);
+    logReview(
+      current.id, rating, statsBefore.state,
+      statsBefore.stability, statsBefore.difficulty,
+      scheduled.scheduledDays, 0
+    );
 
     setSessionStats(prev => {
       const key = ['', 'again', 'hard', 'good', 'easy'][rating];
       return { ...prev, [key]: (prev[key] || 0) + 1 };
     });
 
-    // Advance queue
     const newQueue = queue.slice(1);
-    // If rating=1 (Again), push card back to review later
     if (rating === 1 && newQueue.length > 0) {
       const insertAt = Math.min(3, newQueue.length);
       newQueue.splice(insertAt, 0, { ...current, state: 1 });
     }
 
-    if (newQueue.length === 0) {
-      setDone(true);
-    } else {
-      setQueue(newQueue);
-      loadCard(newQueue[0]);
-    }
+    if (newQueue.length === 0) setDone(true);
+    else { setQueue(newQueue); loadCard(newQueue[0]); }
   }, [current, queue, loadCard]);
 
   // ── Render: Loading ──
@@ -315,11 +316,9 @@ export default function Study() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
         <div style={{ flex: 1, height: 6, background: 'var(--color-surface-2)', borderRadius: 3, overflow: 'hidden' }}>
           <div style={{
-            width: `${100 - (queue.length / (queue.length + Object.values(sessionStats).reduce((a,b)=>a+b,0))) * 100}%`,
-            height: '100%',
-            background: 'var(--color-primary)',
-            borderRadius: 3,
-            transition: 'width 0.3s ease',
+            width: `${(Object.values(sessionStats).reduce((a,b) => a+b, 0) / Math.max(1, queue.length + Object.values(sessionStats).reduce((a,b) => a+b, 0))) * 100}%`,
+            height: '100%', background: 'var(--color-primary)',
+            borderRadius: 3, transition: 'width 0.3s ease',
           }} />
         </div>
         <span style={{ fontSize: 13, color: 'var(--color-text-sec)', whiteSpace: 'nowrap' }}>
@@ -327,45 +326,32 @@ export default function Study() {
         </span>
       </div>
 
-      {/* Card display */}
+      {/* Card iframe */}
       <div style={{
-        flex: 1,
-        background: 'var(--color-surface-1)',
-        borderRadius: 16,
-        border: '1px solid var(--color-border)',
-        overflow: 'hidden',
-        position: 'relative',
-        minHeight: 300,
+        flex: 1, background: 'var(--color-surface-1)',
+        borderRadius: 16, border: '1px solid var(--color-border)',
+        overflow: 'hidden', position: 'relative', minHeight: 320,
       }}>
-        {/* Front */}
         <iframe
           ref={frontFrameRef}
           srcDoc={frontHtml}
           style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
+            width: '100%', height: '100%', border: 'none',
             background: 'transparent',
-            display: showBack ? 'none' : 'block',
-            minHeight: 300,
+            display: showBack ? 'none' : 'block', minHeight: 320,
           }}
-          sandbox="allow-scripts allow-same-origin"
+          sandbox="allow-scripts allow-same-origin allow-modals"
           title="card-front"
         />
-
-        {/* Back */}
         {showBack && (
           <iframe
             ref={backFrameRef}
             srcDoc={backHtml}
             style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-              background: 'transparent',
-              minHeight: 300,
+              width: '100%', height: '100%', border: 'none',
+              background: 'transparent', minHeight: 320,
             }}
-            sandbox="allow-scripts allow-same-origin"
+            sandbox="allow-scripts allow-same-origin allow-modals"
             title="card-back"
           />
         )}
@@ -414,7 +400,6 @@ export default function Study() {
         )}
       </div>
 
-      {/* Keyboard hint */}
       {showBack && (
         <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--color-text-dim)', marginTop: 8 }}>
           اضغط 1-4 لتقييم البطاقة
