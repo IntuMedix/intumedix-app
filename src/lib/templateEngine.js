@@ -11,9 +11,9 @@ let cssCache = null;
 export async function loadTemplates() {
   if (!frontTemplateCache) {
     const [front, back, css] = await Promise.all([
-      fetch('/templates/intumedix-front.html').then(r => r.text()),
-      fetch('/templates/intumedix-back.html').then(r => r.text()),
-      fetch('/templates/intumedix.css').then(r => r.text()),
+      fetch('./templates/intumedix-front.html').then(r => r.text()),
+      fetch('./templates/intumedix-back.html').then(r => r.text()),
+      fetch('./templates/intumedix.css').then(r => r.text()),
     ]);
     frontTemplateCache = front;
     backTemplateCache = back;

@@ -14,13 +14,13 @@ async function loadSqlJs() {
   if (typeof window.initSqlJs === 'undefined') {
     await new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = '/sql-wasm.js';
+      script.src = './sql-wasm.js';
       script.onload = resolve;
       script.onerror = reject;
       document.head.appendChild(script);
     });
   }
-  SQL = await window.initSqlJs({ locateFile: () => '/sql-wasm.wasm' });
+  SQL = await window.initSqlJs({ locateFile: () => './sql-wasm.wasm' });
   return SQL;
 }
 

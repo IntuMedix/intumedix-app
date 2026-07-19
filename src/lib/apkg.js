@@ -10,10 +10,10 @@ let SQL = null;
 async function getSql() {
   if (SQL) return SQL;
   if (typeof window.initSqlJs !== 'undefined') {
-    SQL = await window.initSqlJs({ locateFile: () => '/sql-wasm.wasm' });
+    SQL = await window.initSqlJs({ locateFile: () => './sql-wasm.wasm' });
   } else {
     await new Promise((resolve) => setTimeout(resolve, 500));
-    SQL = await window.initSqlJs({ locateFile: () => '/sql-wasm.wasm' });
+    SQL = await window.initSqlJs({ locateFile: () => './sql-wasm.wasm' });
   }
   return SQL;
 }

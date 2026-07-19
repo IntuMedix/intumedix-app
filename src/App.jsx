@@ -50,7 +50,7 @@ function Sidebar({ open, onClose }) {
       {open && <div className="modal-overlay" style={{ zIndex: 49, background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />}
       <nav className={`sidebar ${open ? 'open' : ''}`}>
         <div className="sidebar-logo">
-          <img src="/_IntuMedix_logo.png" alt="IntuMedix" onError={e => e.target.style.display='none'} />
+          <img src="./_IntuMedix_logo.png" alt="IntuMedix" onError={e => e.target.style.display='none'} />
           <span className="sidebar-logo-text">IntuMedix</span>
         </div>
 
