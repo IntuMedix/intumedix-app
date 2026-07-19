@@ -3,19 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getDecks, getDueCards, updateCard, logReview, getMedia } from '../../lib/db';
 import { scheduleCard, getNextReview } from '../../lib/fsrs';
 
-// ─── Template cache (loaded once) ────────────────────────────
-let _imFront = null, _imBack = null, _imCss = null;
-const _tmplPromise = (async () => {
-  try {
-    const base = import.meta.env.BASE_URL || '/';
-    const [fr, bk, cs] = await Promise.all([
-      fetch(`${base}im_front.html`).then(r => r.ok ? r.text() : null).catch(() => null),
-      fetch(`${base}im_back.html`).then(r => r.ok ? r.text() : null).catch(() => null),
-      fetch(`${base}im_style.css`).then(r => r.ok ? r.text() : null).catch(() => null),
-    ]);
-    _imFront = fr; _imBack = bk; _imCss = cs;
-  } catch(e) { /* templates unavailable, will use inline fallback */ }
-})();
+// ─── Templates bundled at compile time via Vite ?raw imports ──
+// This avoids ALL service-worker / fetch / cache issues.
+import _imFront from '../../templates/im_front.html?raw';
+import _imBack  from '../../templates/im_back.html?raw';
+import _imCss   from '../../templates/im_style.css?raw';
 
 // ─── Detect IntuMedix MCQ cards ───────────────────────────────
 function isIntuMedixMCQ(fields) {
@@ -154,15 +146,9 @@ export default function Study() {
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [tmplReady, setTmplReady] = useState(false);
   const mediaCache = useRef(new Map());
   const frontFrameRef = useRef();
   const backFrameRef = useRef();
-
-  // Wait for templates to load
-  useEffect(() => {
-    _tmplPromise.then(() => setTmplReady(true));
-  }, []);
 
   // Load deck and due cards
   useEffect(() => {
@@ -177,14 +163,15 @@ export default function Study() {
     setLoading(false);
     if (cards.length === 0) { setDone(true); return; }
     loadCard(cards[0]);
-  }, [deckId, tmplReady]);
+  }, [deckId]);
 
   const loadCard = useCallback(async (card) => {
     setCurrent(card);
     setShowBack(false);
 
     const fields = card.fields || {};
-    const useIM = isIntuMedixMCQ(fields) && _imFront && _imBack;
+    // Templates are always available (bundled in JS)
+    const useIM = isIntuMedixMCQ(fields);
 
     let frontDoc, backDoc;
 
@@ -219,7 +206,7 @@ export default function Study() {
 
     setFrontHtml(frontDoc);
     setBackHtml(backDoc);
-  }, [tmplReady]);
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
