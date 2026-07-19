@@ -2,6 +2,22 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Force unregister service workers to ensure fresh JS bundle load
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          let needReload = false;
+          for (const reg of regs) {
+            reg.unregister();
+            needReload = true;
+          }
+          if (needReload) {
+            console.log("SW cleared, reloading...");
+            window.location.reload();
+          }
+        });
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#6366f1" />
     <meta name="description" content="IntuMedix - تطبيق البطاقات الطبية الذكي المتوافق مع Anki" />
@@ -20,7 +36,7 @@
     
     <title>IntuMedix</title>
     <link rel="icon" type="image/png" href="./_IntuMedix_logo.png" />
-    <script type="module" crossorigin src="./assets/index-Bn4QWpur.js"></script>
+    <script type="module" crossorigin src="./assets/index-C6IrpOK_.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-BvGkBlo3.css">
   <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
   <body>
